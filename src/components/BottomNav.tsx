@@ -4,7 +4,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 const navItems = [
   { icon: Home, label: "Home", path: "/" },
   { icon: Compass, label: "Sites", path: "/explore" },
+    { icon: Compass, label: "Artifacts", path: "/artifacts" },
   { icon: Plus, label: "Add", path: "/new-find", isPrimary: true },
+    { icon: Compass, label: "Articles", path: "/articles" },
   { icon: FileText, label: "Reports", path: "/reports" },
   { icon: UserCircle, label: "Account", path: "/account" },
 ];

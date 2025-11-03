@@ -30,6 +30,8 @@ import Account from "./pages/Account";
 import EditProfile from "./pages/EditProfile";
 import SignIn from "./pages/Authentication/sign-in";
 import SignUp from "./pages/Authentication/sign-up";
+import Articles from "./pages/Articles";
+import Artifacts from "./pages/Artifacts";
 import NotFound from "./pages/NotFound";
 
 // Create React Query client instance
@@ -57,6 +59,8 @@ const App = () => (
             <Route path="/team" element={<Team />} />
             <Route path="/explore" element={<Explore />} />
             <Route path="/reports" element={<Reports />} />
+            <Route path="/articles" element={<Articles />} />
+            <Route path="/artifacts" element={<Artifacts />} />
             
             {/* Authentication routes */}
             <Route path="/authentication/sign-in" element={<SignIn />} />
