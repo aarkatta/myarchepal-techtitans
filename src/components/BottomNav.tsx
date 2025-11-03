@@ -1,13 +1,13 @@
-import { Home, Compass, Plus, FileText, UserCircle } from "lucide-react";
+import { Home, Compass, Plus, FileText, UserCircle, Heart, Newspaper, Package } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const navItems = [
   { icon: Home, label: "Home", path: "/" },
   { icon: Compass, label: "Sites", path: "/explore" },
-    { icon: Compass, label: "Artifacts", path: "/artifacts" },
+  { icon: Package, label: "Artifacts", path: "/artifacts" },
   { icon: Plus, label: "Add", path: "/new-find", isPrimary: true },
-    { icon: Compass, label: "Articles", path: "/articles" },
-  { icon: FileText, label: "Reports", path: "/reports" },
+  { icon: Newspaper, label: "Articles", path: "/articles" },
+  { icon: Heart, label: "Donate", path: "/donations" },
   { icon: UserCircle, label: "Account", path: "/account" },
 ];
 
