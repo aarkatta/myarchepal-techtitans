@@ -20,6 +20,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/use-auth";
 import Index from "./pages/Index";
 import NewFind from "./pages/NewFind";
+import NewSite from "./pages/NewSite";
 import SiteMap from "./pages/SiteMap";
 import SiteLists from "./pages/SiteLists";
 import Analysis from "./pages/Analysis";
@@ -56,6 +57,7 @@ const App = () => (
             {/* Public routes */}
             <Route path="/" element={<Index />} />
             <Route path="/new-find" element={<NewFind />} />
+            <Route path="/new-site" element={<NewSite />} />
             <Route path="/site-map" element={<SiteMap />} />
             <Route path="/site-lists" element={<SiteLists />} />
             <Route path="/analysis" element={<Analysis />} />

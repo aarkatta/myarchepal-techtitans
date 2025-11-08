@@ -22,7 +22,7 @@ const primaryNavItems = [
 const createContentOptions = [
   { icon: Newspaper, label: "Create Article", description: "Write a new article for the Articles page", path: "/create-article" },
   { icon: Package, label: "Catalog Artifact", description: "Add a new artifact to the catalog", path: "/create-artifact" },
-  { icon: PlusSquare, label: "New Find", description: "Document a new archaeological find", path: "/new-find" },
+  { icon: PlusSquare, label: "New Site", description: "Document a new archeological site", path: "/new-site" },
 ];
 
 export const BottomNav = () => {
