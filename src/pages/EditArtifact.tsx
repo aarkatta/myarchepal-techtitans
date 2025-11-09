@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Upload, Image as ImageIcon, MapPin, Calendar, Ruler, Tag, Loader2, Building2, DollarSign } from "lucide-react";
+import { Upload, Image as ImageIcon, MapPin, Calendar, Ruler, Tag, Loader2, Building2 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,14 +21,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-
 const types = ["Coin", "Ceramic", "Weapon", "Glass", "Personal Ornament", "Sculpture", "Other"];
 const periods = ["Imperial Roman", "Roman", "Late Roman", "Byzantine", "Medieval", "Other"];
 const materials = ["Gold", "Silver", "Bronze", "Iron", "Terracotta", "Ceramic", "Glass", "Marble", "Stone", "Bone", "Wood", "Other"];
 const conditions = ["Excellent", "Good", "Fair", "Fragment", "Poor"];
 const significance = ["Very High", "High", "Medium", "Low"];
-const currencies = ["USD", "EUR", "GBP", "JPY", "CHF", "CAD", "AUD"];
 
 const EditArtifact = () => {
   const { id } = useParams<{ id: string }>();
@@ -62,10 +59,6 @@ const EditArtifact = () => {
     tags: "",
     finder: "",
     siteId: "",
-    forSale: false,
-    salePrice: "",
-    currency: "USD",
-    quantity: "1",
   });
 
   // Fetch artifact data
@@ -129,10 +122,6 @@ const EditArtifact = () => {
           tags: artifactData.tags?.join(', ') || "",
           finder: artifactData.finder || "",
           siteId: artifactData.siteId || "",
-          forSale: artifactData.forSale || false,
-          salePrice: artifactData.salePrice?.toString() || "",
-          currency: artifactData.currency || "USD",
-          quantity: artifactData.quantity?.toString() || "1",
         });
 
         // Set existing AI summary if available
@@ -310,10 +299,6 @@ const EditArtifact = () => {
         aiImageSummary: aiSummary || artifact.aiImageSummary || "",
         siteName: selectedSite?.name || artifact.siteName || "",
         siteId: formData.siteId,
-        forSale: formData.forSale,
-        salePrice: formData.forSale && formData.salePrice ? parseFloat(formData.salePrice) : undefined,
-        currency: formData.forSale && formData.salePrice ? formData.currency : undefined,
-        quantity: formData.forSale && formData.quantity ? parseInt(formData.quantity) : undefined,
       };
 
       await ArtifactsService.updateArtifact(id, updateData);
@@ -717,82 +702,6 @@ const EditArtifact = () => {
               </div>
               <p className="text-xs text-muted-foreground">Separate multiple tags with commas</p>
             </div>
-
-            {/* Sale Section */}
-            <Card className="border-border bg-muted/20">
-              <CardContent className="pt-6 space-y-4">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="forSale"
-                    checked={formData.forSale}
-                    onCheckedChange={(checked) =>
-                      setFormData({ ...formData, forSale: checked as boolean })
-                    }
-                  />
-                  <Label htmlFor="forSale" className="text-foreground font-medium cursor-pointer">
-                    Mark artifact for sale
-                  </Label>
-                </div>
-
-                {formData.forSale && (
-                  <div className="space-y-4 pl-6 border-l-2 border-primary/30">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="salePrice" className="text-foreground">Price per Item *</Label>
-                        <div className="relative">
-                          <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                          <Input
-                            id="salePrice"
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            placeholder="0.00"
-                            value={formData.salePrice}
-                            onChange={(e) => setFormData({ ...formData, salePrice: e.target.value })}
-                            required={formData.forSale}
-                            className="pl-10 border-border"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="currency" className="text-foreground">Currency</Label>
-                        <Select
-                          value={formData.currency}
-                          onValueChange={(value) => setFormData({ ...formData, currency: value })}
-                        >
-                          <SelectTrigger className="border-border">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {currencies.map((curr) => (
-                              <SelectItem key={curr} value={curr}>
-                                {curr}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="quantity" className="text-foreground">Quantity Available *</Label>
-                      <Input
-                        id="quantity"
-                        type="number"
-                        min="1"
-                        placeholder="1"
-                        value={formData.quantity}
-                        onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
-                        required={formData.forSale}
-                        className="border-border"
-                      />
-                      <p className="text-xs text-muted-foreground">Number of items available for sale</p>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
 
             <div className="flex gap-3 pt-2">
               <Button

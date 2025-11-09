@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Calendar, Clock, MapPin, Folder, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
+import { AccountButton } from "@/components/AccountButton";
 import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,7 +56,10 @@ const Events = () => {
     <div className="min-h-screen bg-background pb-24">
       <div className="max-w-md mx-auto">
         <header className="bg-card p-4 border-b border-border sticky top-0 z-10">
-          <PageHeader />
+          <div className="flex items-center justify-between">
+            <PageHeader />
+            <AccountButton />
+          </div>
         </header>
 
         <div className="p-4 space-y-6">

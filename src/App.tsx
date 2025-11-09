@@ -47,6 +47,9 @@ import ContactUs from "./pages/ContactUs";
 import Events from "./pages/Events";
 import EventDetails from "./pages/EventDetails";
 import CreateEvent from "./pages/CreateEvent";
+import GiftShop from "./pages/GiftShop";
+import CheckoutMerchandise from "./pages/CheckoutMerchandise";
+import CreateMerchandise from "./pages/CreateMerchandise";
 import NotFound from "./pages/NotFound";
 
 // Create React Query client instance
@@ -80,6 +83,8 @@ const App = () => (
             <Route path="/artifact/:id" element={<ArtifactDetails />} />
             <Route path="/checkout/:id" element={<Checkout />} />
             <Route path="/donations" element={<Donations />} />
+            <Route path="/gift-shop" element={<GiftShop />} />
+            <Route path="/checkout-merchandise/:id" element={<CheckoutMerchandise />} />
             <Route path="/contact" element={<ContactUs />} />
             <Route path="/events" element={<Events />} />
             <Route path="/event/:id" element={<EventDetails />} />
@@ -118,6 +123,11 @@ const App = () => (
             <Route path="/create-event" element={
               <ProtectedRoute>
                 <CreateEvent />
+              </ProtectedRoute>
+            } />
+            <Route path="/create-merchandise" element={
+              <ProtectedRoute>
+                <CreateMerchandise />
               </ProtectedRoute>
             } />
 

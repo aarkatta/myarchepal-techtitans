@@ -1,4 +1,4 @@
-import { Home, Compass, Plus, Heart, Newspaper, Package, PlusSquare, Calendar } from "lucide-react";
+import { Home, Compass, Plus, Heart, Newspaper, Package, PlusSquare, Calendar, ShoppingBag, HandHeart } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 import {
@@ -19,7 +19,7 @@ const navItems = [
   { icon: Package, label: "Artifacts", path: "/artifacts" },
   { icon: Newspaper, label: "Articles", path: "/articles" },
   { icon: Calendar, label: "Events", path: "/events" },
-  { icon: Heart, label: "Donate", path: "/donations" }
+  { icon: HandHeart, label: "Support Us", path: "/support", hasSubmenu: true }
 ];
 
 const createContentOptions = [
@@ -29,12 +29,18 @@ const createContentOptions = [
   { icon: Calendar, label: "Create Event", description: "Add a new event to the calendar", path: "/create-event" },
 ];
 
+const supportOptions = [
+  { icon: Heart, label: "Donate", description: "Support our archaeological preservation work", path: "/donations" },
+  { icon: ShoppingBag, label: "Gift Shop", description: "Browse our collection of unique items", path: "/gift-shop" },
+];
+
 export const BottomNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated } = useAuth();
   const { isArchaeologist } = useArchaeologist();
   const [isCreateSheetOpen, setIsCreateSheetOpen] = useState(false);
+  const [isSupportSheetOpen, setIsSupportSheetOpen] = useState(false);
 
   const handleCreateClick = () => {
     setIsCreateSheetOpen(true);
@@ -43,6 +49,23 @@ export const BottomNav = () => {
   const handleContentOptionClick = (path: string) => {
     setIsCreateSheetOpen(false);
     navigate(path);
+  };
+
+  const handleSupportClick = () => {
+    setIsSupportSheetOpen(true);
+  };
+
+  const handleSupportOptionClick = (path: string) => {
+    setIsSupportSheetOpen(false);
+    navigate(path);
+  };
+
+  const handleNavClick = (item: typeof navItems[0]) => {
+    if (item.hasSubmenu) {
+      handleSupportClick();
+    } else {
+      navigate(item.path);
+    }
   };
 
   const leftItems = navItems.slice(0, 3);
@@ -55,7 +78,7 @@ export const BottomNav = () => {
           {leftItems.map((item) => (
             <button
               key={item.label}
-              onClick={() => navigate(item.path)}
+              onClick={() => handleNavClick(item)}
               className={`flex flex-col items-center gap-1 transition-all duration-300 ${
                 location.pathname === item.path
                   ? "text-primary"
@@ -84,9 +107,9 @@ export const BottomNav = () => {
           {rightItems.map((item) => (
             <button
               key={item.label}
-              onClick={() => navigate(item.path)}
+              onClick={() => handleNavClick(item)}
               className={`flex flex-col items-center gap-1 transition-all duration-300 ${
-                location.pathname === item.path
+                location.pathname === item.path || (item.hasSubmenu && (location.pathname === '/donations' || location.pathname === '/gift-shop'))
                   ? "text-primary"
                   : "text-muted-foreground hover:text-foreground"
               }`}
@@ -113,6 +136,35 @@ export const BottomNav = () => {
                 variant="outline"
                 className="w-full h-auto py-4 flex items-start gap-3 hover:bg-accent hover:text-accent-foreground"
                 onClick={() => handleContentOptionClick(option.path)}
+              >
+                <option.icon className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                <div className="text-left flex-1">
+                  <div className="font-medium">{option.label}</div>
+                  <div className="text-xs opacity-70 font-normal mt-1">
+                    {option.description}
+                  </div>
+                </div>
+              </Button>
+            ))}
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      <Sheet open={isSupportSheetOpen} onOpenChange={setIsSupportSheetOpen}>
+        <SheetContent side="bottom" className="max-w-md mx-auto">
+          <SheetHeader>
+            <SheetTitle>Support Us</SheetTitle>
+            <SheetDescription>
+              Help preserve our archaeological heritage
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-6 space-y-3">
+            {supportOptions.map((option) => (
+              <Button
+                key={option.label}
+                variant="outline"
+                className="w-full h-auto py-4 flex items-start gap-3 hover:bg-accent hover:text-accent-foreground"
+                onClick={() => handleSupportOptionClick(option.path)}
               >
                 <option.icon className="w-5 h-5 mt-0.5 flex-shrink-0" />
                 <div className="text-left flex-1">

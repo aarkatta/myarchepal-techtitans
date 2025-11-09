@@ -31,6 +31,7 @@ export interface Site {
     region?: string;
   };
   description: string;
+  researchAnalysis?: string;
   dateDiscovered: Date | Timestamp;
   period?: string;
   artifacts?: string[];

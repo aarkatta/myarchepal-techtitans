@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FileText, Tag, Upload, Image as ImageIcon, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
+import { AccountButton } from "@/components/AccountButton";
+import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -203,7 +205,10 @@ const CreateArticle = () => {
     <div className="min-h-screen bg-background pb-24">
       <div className="max-w-md mx-auto">
         <header className="bg-card p-4 border-b border-border sticky top-0 z-10">
-          <PageHeader />
+          <div className="flex items-center justify-between">
+            <PageHeader />
+            <AccountButton />
+          </div>
         </header>
 
         {/* Auth Status */}
@@ -408,6 +413,8 @@ const CreateArticle = () => {
           </form>
         </div>
         )}
+
+        <BottomNav />
       </div>
     </div>
   );

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { BookOpen, Clock, Eye, ThumbsUp, MessageSquare, Bookmark, TrendingUp, Filter, Loader2, FileText, Plus } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
 import { PageHeader } from "@/components/PageHeader";
+import { AccountButton } from "@/components/AccountButton";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -82,18 +83,13 @@ const Articles = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => navigate("/create-article")}
-                  className="hover:bg-muted mr-2"
+                  className="hover:bg-muted hover:text-primary"
                 >
                   <Plus className="w-4 h-4 mr-1" />
-                  Create
+                  Create Article
                 </Button>
               )}
-              <Button variant="ghost" size="icon" className="hover:bg-muted">
-                <Bookmark className="w-5 h-5" />
-              </Button>
-              <Button variant="ghost" size="icon" className="hover:bg-muted">
-                <Filter className="w-5 h-5" />
-              </Button>
+              <AccountButton />
             </div>
           </div>
           <div className="relative">
