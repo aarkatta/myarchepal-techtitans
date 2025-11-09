@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Calendar, Clock, MapPin, Users, Loader2, DollarSign, Tag } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
+import { AccountButton } from "@/components/AccountButton";
+import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -110,7 +112,10 @@ const CreateEvent = () => {
     <div className="min-h-screen bg-background pb-24">
       <div className="max-w-md mx-auto">
         <header className="bg-card p-4 border-b border-border sticky top-0 z-10">
-          <PageHeader />
+          <div className="flex items-center justify-between">
+            <PageHeader />
+            <AccountButton />
+          </div>
         </header>
 
         {/* Auth & Access Check */}
@@ -342,6 +347,8 @@ const CreateEvent = () => {
             </form>
           </div>
         )}
+
+        <BottomNav />
       </div>
     </div>
   );

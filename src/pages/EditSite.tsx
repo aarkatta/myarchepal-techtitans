@@ -32,6 +32,7 @@ const EditSite = () => {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
+    researchAnalysis: "",
     location: {
       address: "",
       country: "",
@@ -74,6 +75,7 @@ const EditSite = () => {
         setFormData({
           name: siteData.name || "",
           description: siteData.description || "",
+          researchAnalysis: siteData.researchAnalysis || "",
           location: {
             address: siteData.location?.address || "",
             country: siteData.location?.country || "",
@@ -203,6 +205,7 @@ const EditSite = () => {
       const updateData = {
         name: formData.name,
         description: formData.description,
+        researchAnalysis: formData.researchAnalysis || undefined,
         location: {
           address: formData.location.address || "",
           country: formData.location.country || "",
@@ -399,6 +402,18 @@ const EditSite = () => {
                   onChange={handleInputChange}
                   rows={4}
                   required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="researchAnalysis">Research and Analysis</Label>
+                <Textarea
+                  id="researchAnalysis"
+                  name="researchAnalysis"
+                  placeholder="Provide research findings, analysis, and interpretations..."
+                  value={formData.researchAnalysis}
+                  onChange={handleInputChange}
+                  rows={4}
                 />
               </div>
 

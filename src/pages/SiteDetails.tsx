@@ -272,6 +272,20 @@ const SiteDetails = () => {
             </CardContent>
           </Card>
 
+          {/* Research and Analysis */}
+          {site.researchAnalysis && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Research and Analysis</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground whitespace-pre-wrap">
+                  {site.researchAnalysis}
+                </p>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Location Details */}
           <Card>
             <CardHeader>

@@ -69,16 +69,7 @@ export const AppHeader = () => {
           />
           <h1 className="text-xl font-semibold text-foreground">ArchePal</h1>
         </div>
-        <div className="flex items-center gap-3">
-          {isAuthenticated && (
-            <button
-              className="p-2 hover:bg-muted rounded-full transition-colors"
-              onClick={() => navigate("/account")}
-              aria-label="Notifications"
-            >
-              <Bell className="w-5 h-5 text-muted-foreground" />
-            </button>
-          )}
+        <div className="flex items-center gap-3">         
           {isAuthenticated ? (
             <button
               className="p-2 hover:bg-muted rounded-full transition-colors"

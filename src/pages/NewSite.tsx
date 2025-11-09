@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MapPin, FileText, Save, Loader2, Upload, Image as ImageIcon } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
+import { AccountButton } from "@/components/AccountButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -35,6 +36,7 @@ const NewSite = () => {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
+    researchAnalysis: "",
     location: {
       latitude: "",
       longitude: ""
@@ -204,6 +206,7 @@ const NewSite = () => {
       const siteData = {
         name: formData.name,
         description: formData.description,
+        researchAnalysis: formData.researchAnalysis || undefined,
         location: {
           latitude: formData.location.latitude ? parseFloat(formData.location.latitude) : DEFAULT_LOCATION.latitude,
           longitude: formData.location.longitude ? parseFloat(formData.location.longitude) : DEFAULT_LOCATION.longitude
@@ -260,7 +263,10 @@ const NewSite = () => {
       <div className="max-w-md mx-auto">
         {/* Header */}
         <header className="bg-card p-4 border-b border-border sticky top-0 z-10">
-          <PageHeader />
+          <div className="flex items-center justify-between">
+            <PageHeader />
+            <AccountButton />
+          </div>
         </header>
 
         {/* Auth & Archaeologist Status */}
@@ -385,6 +391,18 @@ const NewSite = () => {
                   onChange={handleInputChange}
                   rows={4}
                   required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="researchAnalysis">Research and Analysis</Label>
+                <Textarea
+                  id="researchAnalysis"
+                  name="researchAnalysis"
+                  placeholder="Provide research findings, analysis, and interpretations..."
+                  value={formData.researchAnalysis}
+                  onChange={handleInputChange}
+                  rows={4}
                 />
               </div>
 

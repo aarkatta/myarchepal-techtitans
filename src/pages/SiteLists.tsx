@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { MapPin, Calendar, Users, FileText, Search, Loader2, Plus, Star } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
 import { PageHeader } from "@/components/PageHeader";
+import { AccountButton } from "@/components/AccountButton";
 import { SiteConditions } from "@/components/SiteConditions";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -187,35 +188,19 @@ const SiteLists = () => {
         <header className="bg-card p-4 border-b border-border sticky top-0 z-10">
           <div className="flex items-center justify-between mb-4">
             <PageHeader />
-            <div className="flex gap-2">
-              {user && isArchaeologist && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleClearAllActiveProjects}
-                  disabled={clearingAllActive}
-                  className="hover:bg-destructive hover:text-destructive-foreground"
-                  title="Clear all active project assignments"
-                >
-                  {clearingAllActive ? (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  ) : (
-                    <Star className="w-4 h-4 mr-2" />
-                  )}
-                  Clear Active
-                </Button>
-              )}
+            <div className="flex items-center gap-2">
               {user && (
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => navigate("/new-site")}
-                  className="hover:bg-muted"
+                  className="hover:bg-muted hover:text-primary"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Create Site
                 </Button>
               )}
+              <AccountButton />
             </div>
           </div>
           

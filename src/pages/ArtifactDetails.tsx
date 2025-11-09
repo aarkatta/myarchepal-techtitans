@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { MapPin, Calendar, Edit, Share2, Loader2, Building2, Ruler, Star, DollarSign, ShoppingCart } from "lucide-react";
+import { MapPin, Calendar, Edit, Share2, Loader2, Building2, Ruler, Star } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -292,45 +292,6 @@ const ArtifactDetails = () => {
               </div>
             </CardContent>
           </Card>
-
-          {/* Sale Information */}
-          {artifact.forSale && (
-            <Card className="border-blue-500 bg-blue-500/5">
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2 text-blue-600">
-                  <ShoppingCart className="w-5 h-5" />
-                  For Sale
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <span className="text-sm font-medium">Price per Item:</span>
-                    <div className="flex items-center gap-1 text-xl font-bold text-blue-600 mt-1">
-                      <DollarSign className="w-5 h-5" />
-                      <span>{artifact.currency || 'USD'} {artifact.salePrice?.toLocaleString() || 'N/A'}</span>
-                    </div>
-                  </div>
-                  {artifact.quantity && (
-                    <div>
-                      <span className="text-sm font-medium">Quantity Available:</span>
-                      <p className="text-xl font-bold text-blue-600 mt-1">{artifact.quantity}</p>
-                    </div>
-                  )}
-                </div>
-                {artifact.quantity && artifact.salePrice && (
-                  <div className="pt-3 border-t border-blue-500/20">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium">Total Value:</span>
-                      <span className="text-lg font-bold text-blue-600">
-                        {artifact.currency || 'USD'} {(artifact.salePrice * artifact.quantity).toLocaleString()}
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
 
           {/* Classification */}
           <Card>
