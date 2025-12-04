@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { BookOpen, Calendar, Clock, Image as ImageIcon, Mic, MicOff, Plus, Trash2, Loader2, MapPin, Package, Layers } from "lucide-react";
+import { BookOpen, Calendar, Clock, Image as ImageIcon, Mic, MicOff, Plus, Trash2, Loader2, MapPin, Package, Layers, Pencil } from "lucide-react";
 import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { AccountButton } from "@/components/AccountButton";
@@ -13,7 +13,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { db, storage } from "@/lib/firebase";
-import { collection, addDoc, query, where, getDocs, deleteDoc, doc, Timestamp } from "firebase/firestore";
+import { collection, addDoc, query, where, getDocs, deleteDoc, doc, Timestamp, updateDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { AzureOpenAIService } from "@/services/azure-openai";
 import {
@@ -46,6 +46,8 @@ const DigitalDiary = () => {
   const [loading, setLoading] = useState(false);
   const [fetchingEntries, setFetchingEntries] = useState(true);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingEntry, setEditingEntry] = useState<DiaryEntry | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [recognition, setRecognition] = useState<any>(null);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -54,6 +56,12 @@ const DigitalDiary = () => {
   const [analyzingImage, setAnalyzingImage] = useState(false);
 
   const [formData, setFormData] = useState({
+    title: "",
+    content: "",
+    category: "artifact" as "site" | "artifact" | "other",
+  });
+
+  const [editFormData, setEditFormData] = useState({
     title: "",
     content: "",
     category: "artifact" as "site" | "artifact" | "other",
@@ -382,6 +390,80 @@ const DigitalDiary = () => {
     }
   };
 
+  const openEditDialog = (entry: DiaryEntry) => {
+    setEditingEntry(entry);
+    setEditFormData({
+      title: entry.title,
+      content: entry.content,
+      category: entry.category,
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleUpdateEntry = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!user || !editingEntry?.id) {
+      toast({
+        title: "Error",
+        description: "Unable to update entry",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!editFormData.title && !editFormData.content) {
+      toast({
+        title: "Validation Error",
+        description: "Please add a title or content",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const entryRef = doc(db, "DigitalDiary", editingEntry.id);
+      await updateDoc(entryRef, {
+        title: editFormData.title || "Untitled Entry",
+        content: editFormData.content,
+        category: editFormData.category,
+      });
+
+      // Update local state
+      setEntries(entries.map(entry =>
+        entry.id === editingEntry.id
+          ? {
+              ...entry,
+              title: editFormData.title || "Untitled Entry",
+              content: editFormData.content,
+              category: editFormData.category,
+            }
+          : entry
+      ));
+
+      toast({
+        title: "Success!",
+        description: "Diary entry has been updated",
+      });
+
+      setIsEditDialogOpen(false);
+      setEditingEntry(null);
+      setEditFormData({ title: "", content: "", category: "artifact" });
+
+    } catch (error) {
+      console.error("Error updating diary entry:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update diary entry. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (!user) {
     return (
       <ResponsiveLayout>
@@ -486,14 +568,24 @@ const DigitalDiary = () => {
                           </div>
                         </div>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteEntry(entry.id!)}
-                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => openEditDialog(entry)}
+                          className="text-muted-foreground hover:text-foreground hover:bg-muted"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteEntry(entry.id!)}
+                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -687,6 +779,117 @@ const DigitalDiary = () => {
                     <>
                       <Plus className="w-4 h-4" />
                       Save Entry
+                    </>
+                  )}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Entry Dialog */}
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Edit Diary Entry</DialogTitle>
+              <DialogDescription>
+                Make changes to your diary entry
+              </DialogDescription>
+            </DialogHeader>
+
+            <form onSubmit={handleUpdateEntry} className="space-y-4">
+              {/* Show existing image if available */}
+              {editingEntry?.imageUrl && (
+                <div className="relative">
+                  <img
+                    src={editingEntry.imageUrl}
+                    alt="Entry image"
+                    className="w-full h-48 object-cover rounded-lg"
+                  />
+                </div>
+              )}
+
+              {/* Category Selection */}
+              <div className="space-y-3">
+                <Label>Entry Type</Label>
+                <RadioGroup
+                  value={editFormData.category}
+                  onValueChange={(value: "site" | "artifact" | "other") =>
+                    setEditFormData({ ...editFormData, category: value })
+                  }
+                  className="flex gap-4"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="site" id="edit-site" />
+                    <Label htmlFor="edit-site" className="cursor-pointer flex items-center gap-2 font-normal">
+                      <MapPin className="w-4 h-4" />
+                      Site
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="artifact" id="edit-artifact" />
+                    <Label htmlFor="edit-artifact" className="cursor-pointer flex items-center gap-2 font-normal">
+                      <Package className="w-4 h-4" />
+                      Artifact
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="other" id="edit-other" />
+                    <Label htmlFor="edit-other" className="cursor-pointer flex items-center gap-2 font-normal">
+                      <Layers className="w-4 h-4" />
+                      Other
+                    </Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              {/* Title */}
+              <div className="space-y-2">
+                <Label htmlFor="edit-title">Title</Label>
+                <Input
+                  id="edit-title"
+                  placeholder="Give your entry a title..."
+                  value={editFormData.title}
+                  onChange={(e) => setEditFormData({ ...editFormData, title: e.target.value })}
+                  className="border-border"
+                />
+              </div>
+
+              {/* Content */}
+              <div className="space-y-2">
+                <Label htmlFor="edit-content">Your Entry</Label>
+                <Textarea
+                  id="edit-content"
+                  placeholder="What's on your mind?"
+                  value={editFormData.content}
+                  onChange={(e) => setEditFormData({ ...editFormData, content: e.target.value })}
+                  className="min-h-32 border-border"
+                />
+              </div>
+
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setIsEditDialogOpen(false);
+                    setEditingEntry(null);
+                    setEditFormData({ title: "", content: "", category: "artifact" });
+                  }}
+                  disabled={loading}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={loading} className="gap-2">
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Pencil className="w-4 h-4" />
+                      Update Entry
                     </>
                   )}
                 </Button>
