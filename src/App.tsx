@@ -1,12 +1,12 @@
 /**
  * Main App Component
- * 
+ *
  * Sets up the application with providers and routing:
  * - QueryClientProvider: React Query for data fetching
  * - TooltipProvider: Tooltip UI component provider
  * - AuthProvider: Authentication context provider (wraps entire app)
  * - BrowserRouter: React Router for navigation
- * 
+ *
  * Routes:
  * - Public routes: /, /authentication/sign-in, /authentication/sign-up
  * - Protected routes: /account, /edit-profile, etc.
@@ -55,6 +55,7 @@ import CreateMerchandise from "./pages/CreateMerchandise";
 import Contributors from "./pages/Contributors";
 import DigitalDiary from "./pages/DigitalDiary";
 import ChatArea from "./pages/ChatArea";
+import AboutUs from "./pages/AboutUs";
 import NotFound from "./pages/NotFound";
 
 // Create React Query client instance
@@ -97,6 +98,7 @@ const App = () => (
             <Route path="/events" element={<Events />} />
             <Route path="/event/:id" element={<EventDetails />} />
             <Route path="/digital-diary" element={<DigitalDiary />} />
+            <Route path="/about-us" element={<AboutUs />} />
             <Route path="/chat" element={
               <ProtectedRoute>
                 <ChatArea />
@@ -148,7 +150,7 @@ const App = () => (
             {/* Authentication routes */}
             <Route path="/authentication/sign-in" element={<SignIn />} />
             <Route path="/authentication/sign-up" element={<SignUp />} />
-            
+
             {/* Protected routes (require authentication) */}
             <Route path="/account" element={<Account />} />
             <Route path="/edit-profile" element={<EditProfile />} />
@@ -157,7 +159,7 @@ const App = () => (
                 <Feedback />
               </ProtectedRoute>
             } />
-            
+
             {/* Catch-all route for 404 pages */}
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

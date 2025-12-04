@@ -124,29 +124,33 @@ export const SiteConditions = ({ latitude, longitude }: SiteConditionsProps) => 
   // --- Render Logic (Loading, Error states) ---
   if (loading) {
     return (
-      <div className="px-4 py-6 pb-24">
-        <h3 className="text-base font-semibold text-foreground mb-4">Site Conditions</h3>
-        <Card className="p-4 border-border text-center text-muted-foreground">
-          Loading site conditions...
-        </Card>
+      <div className="px-3 py-4 sm:px-4 sm:py-5 md:px-6 md:py-6 lg:px-8 lg:py-8">
+        <div className="max-w-7xl mx-auto">
+          <h3 className="text-h3 font-bold text-foreground mb-3 md:mb-4 lg:mb-5 font-heading leading-tight tracking-tight">Site Conditions</h3>
+          <Card className="p-4 md:p-6 lg:p-8 border-border/50 text-center text-muted-foreground font-sans text-body leading-normal">
+            Loading site conditions...
+          </Card>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="px-4 py-6 pb-24">
-        <h3 className="text-base font-semibold text-foreground mb-4">Site Conditions</h3>
-        <Card className="p-4 border-border text-center">
-          <p className="text-destructive mb-2">⚠️ Error loading weather</p>
-          <p className="text-xs text-muted-foreground mb-3">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="text-xs text-primary underline hover:no-underline"
-          >
-            Retry
-          </button>
-        </Card>
+      <div className="px-3 py-4 sm:px-4 sm:py-5 md:px-6 md:py-6 lg:px-8 lg:py-8">
+        <div className="max-w-7xl mx-auto">
+          <h3 className="text-h3 font-bold text-foreground mb-3 md:mb-4 lg:mb-5 font-heading leading-tight tracking-tight">Site Conditions</h3>
+          <Card className="p-4 md:p-6 lg:p-8 border-border/50 text-center">
+            <p className="text-destructive mb-2 font-sans text-body leading-normal">Error loading weather</p>
+            <p className="text-body-sm text-muted-foreground mb-3 font-sans leading-normal">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="text-body-sm text-primary underline hover:no-underline font-sans"
+            >
+              Retry
+            </button>
+          </Card>
+        </div>
       </div>
     );
   }
@@ -160,68 +164,70 @@ export const SiteConditions = ({ latitude, longitude }: SiteConditionsProps) => 
 
   // --- Render Logic (Success state) ---
   return (
-    <div className="px-4 py-6 pb-24">
-      <h3 className="text-base font-semibold text-foreground mb-4">Site Conditions</h3>
+    <div className="px-3 py-4 sm:px-4 sm:py-5 md:px-6 md:py-6 lg:px-8 lg:py-8">
+      <div className="max-w-7xl mx-auto">
+        <h3 className="text-h3 font-bold text-foreground mb-3 md:mb-4 lg:mb-5 font-heading leading-tight tracking-tight">Site Conditions</h3>
 
-      <Card className="p-4 border-border">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-warning/20 rounded-full flex items-center justify-center">
-              <Sun className="w-7 h-7 text-warning" />
+        <Card className="p-3 sm:p-4 md:p-5 lg:p-6 border-border/50">
+          <div className="flex items-start justify-between mb-3 sm:mb-4 md:mb-5">
+            <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 bg-warning/20 rounded-full flex items-center justify-center">
+                <Sun className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 text-warning" />
+              </div>
+              <div>
+                <p className="text-body-sm text-muted-foreground font-sans leading-normal">Sunny</p>
+                {locationName && (
+                  <p className="text-caption text-muted-foreground flex items-center gap-1 mt-0.5 sm:mt-1 font-sans leading-snug">
+                    <MapPin className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4" />
+                    {locationName}
+                  </p>
+                )}
+              </div>
             </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Sunny</p>
-              {locationName && (
-                <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                  <MapPin className="w-3 h-3" />
-                  {locationName}
-                </p>
-              )}
+            <div className="text-right">
+              <p className="text-display font-bold text-foreground font-sans leading-tight tracking-tight">
+                {Math.round(weather.temperature_2m)}°C
+              </p>
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-3xl font-bold text-foreground">
-              {Math.round(weather.temperature_2m)}°C
-            </p>
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-3 gap-4 mb-3 pb-3 border-b border-border">
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-1 mb-1">
-              <Droplets className="w-4 h-4 text-accent" />
+
+          <div className="grid grid-cols-3 gap-2 sm:gap-4 md:gap-6 lg:gap-8 mb-2 sm:mb-3 md:mb-4 pb-2 sm:pb-3 md:pb-4 border-b border-border/50">
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-1 mb-0.5 sm:mb-1 md:mb-2">
+                <Droplets className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-accent" />
+              </div>
+              <p className="text-h2 font-semibold text-foreground font-sans leading-tight">
+                {weather.relative_humidity_2m}%
+              </p>
+              <p className="text-caption text-muted-foreground font-sans leading-snug">Humidity</p>
             </div>
-            <p className="text-lg font-semibold text-foreground">
-              {weather.relative_humidity_2m}%
-            </p>
-            <p className="text-xs text-muted-foreground">Humidity</p>
-          </div>
-          
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-1 mb-1">
-              <Wind className="w-4 h-4 text-accent" />
+
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-1 mb-0.5 sm:mb-1 md:mb-2">
+                <Wind className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-accent" />
+              </div>
+              <p className="text-h2 font-semibold text-foreground font-sans leading-tight">
+                {Math.round(weather.wind_speed_10m)} km/h
+              </p>
+              <p className="text-caption text-muted-foreground font-sans leading-snug">Wind</p>
             </div>
-            <p className="text-lg font-semibold text-foreground">
-              {Math.round(weather.wind_speed_10m)} km/h
-            </p>
-            <p className="text-xs text-muted-foreground">Wind</p>
-          </div>
-          
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-1 mb-1">
-              <Gauge className="w-4 h-4 text-accent" />
+
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-1 mb-0.5 sm:mb-1 md:mb-2">
+                <Gauge className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-accent" />
+              </div>
+              <p className="text-h2 font-semibold text-foreground font-sans leading-tight">
+                {Math.round(weather.uv_index)}
+              </p>
+              <p className="text-caption text-muted-foreground font-sans leading-snug">UV Index</p>
             </div>
-            <p className="text-lg font-semibold text-foreground">
-              {Math.round(weather.uv_index)}
-            </p>
-            <p className="text-xs text-muted-foreground">UV Index</p>
           </div>
-        </div>
-        
-        <p className="text-xs text-center text-muted-foreground">
-          Perfect conditions for excavation work
-        </p>
-      </Card>
+
+          <p className="text-caption text-center text-muted-foreground font-sans leading-snug">
+            Perfect conditions for excavation work
+          </p>
+        </Card>
+      </div>
     </div>
   );
 };

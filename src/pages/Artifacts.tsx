@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, MapPin, Calendar, Filter, Grid3X3, List, Loader2, Building2, Plus } from "lucide-react";
-import { BottomNav } from "@/components/BottomNav";
+import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { AccountButton } from "@/components/AccountButton";
 import { Button } from "@/components/ui/button";
@@ -118,20 +118,20 @@ const Artifacts = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-md mx-auto">
-        <header className="bg-card p-4 border-b border-border sticky top-0 z-10">
-          <div className="flex items-center justify-between mb-4">
+    <ResponsiveLayout>
+      <header className="bg-card/95 backdrop-blur-lg px-4 py-4 sm:px-6 lg:px-8 border-b border-border sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
             <PageHeader />
             <div className="flex items-center gap-2">
               {user && (
                 <Button
-                  variant="outline"
+                  variant="default"
                   size="sm"
                   onClick={() => navigate("/create-artifact")}
-                  className="hover:bg-muted hover:text-primary"
+                  className="hidden lg:flex gap-1.5 text-sm h-9 px-4 shadow-sm hover:shadow-md transition-all"
                 >
-                  <Plus className="w-4 h-4 mr-2" />
+                  <Plus className="w-4 h-4" />
                   Create Artifact
                 </Button>
               )}
@@ -139,215 +139,262 @@ const Artifacts = () => {
             </div>
           </div>
 
-          <div className="relative mb-4">
+          <div className="relative mb-3 sm:mb-4">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               placeholder="Search artifacts..."
-              className="pl-10 border-border"
+              className="pl-10 h-11 lg:h-12 bg-muted/50 border-0 focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
 
-          <div className="grid grid-cols-3 gap-2">
-            <Card className="p-3 border-border text-center">
-              <p className="text-2xl font-bold text-primary">{artifacts.length}</p>
-              <p className="text-xs text-muted-foreground">Total</p>
+          <div className="grid grid-cols-3 gap-2 sm:gap-3 lg:gap-4">
+            <Card className="p-2.5 sm:p-3 lg:p-4 border-border/50 text-center bg-gradient-to-br from-primary/5 to-primary/10 hover:shadow-md transition-shadow">
+              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-primary">{artifacts.length}</p>
+              <p className="text-[10px] sm:text-xs lg:text-sm text-muted-foreground font-medium">Total</p>
             </Card>
-            <Card className="p-3 border-border text-center">
-              <p className="text-2xl font-bold text-orange-600">
+            <Card className="p-2.5 sm:p-3 lg:p-4 border-border/50 text-center bg-gradient-to-br from-orange-500/5 to-orange-500/10 hover:shadow-md transition-shadow">
+              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-orange-600">
                 {artifacts.filter(a => a.significance === 'High' || a.significance === 'Very High').length}
               </p>
-              <p className="text-xs text-muted-foreground">Significant</p>
+              <p className="text-[10px] sm:text-xs lg:text-sm text-muted-foreground font-medium">Significant</p>
             </Card>
-            <Card className="p-3 border-border text-center">
-              <p className="text-2xl font-bold text-green-600">
+            <Card className="p-2.5 sm:p-3 lg:p-4 border-border/50 text-center bg-gradient-to-br from-green-500/5 to-green-500/10 hover:shadow-md transition-shadow">
+              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-green-600">
                 {artifacts.filter(a => a.condition === 'Excellent' || a.condition === 'Good').length}
               </p>
-              <p className="text-xs text-muted-foreground">Good</p>
+              <p className="text-[10px] sm:text-xs lg:text-sm text-muted-foreground font-medium">Good</p>
             </Card>
           </div>
-        </header>
+        </div>
+      </header>
 
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Button
-                variant={viewMode === "grid" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setViewMode("grid")}
-              >
-                <Grid3X3 className="w-4 h-4" />
-              </Button>
-              <Button
-                variant={viewMode === "list" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setViewMode("list")}
-              >
-                <List className="w-4 h-4" />
+      {/* Two-column layout on desktop */}
+      <div className="lg:flex lg:gap-8 max-w-7xl mx-auto">
+        {/* Main content */}
+        <div className="lg:flex-1">
+          <div className="p-3 sm:p-4 lg:p-6">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <Button
+                  variant={viewMode === "grid" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setViewMode("grid")}
+                  className="h-9 w-9 lg:h-10 lg:w-10 p-0"
+                >
+                  <Grid3X3 className="w-4 h-4 lg:w-5 lg:h-5" />
+                </Button>
+                <Button
+                  variant={viewMode === "list" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setViewMode("list")}
+                  className="h-9 w-9 lg:h-10 lg:w-10 p-0"
+                >
+                  <List className="w-4 h-4 lg:w-5 lg:h-5" />
+                </Button>
+              </div>
+              <Button variant="outline" size="sm" className="h-9 lg:h-10 text-xs sm:text-sm lg:text-base lg:hidden">
+                <Filter className="w-4 h-4 mr-2" />
+                Filter
               </Button>
             </div>
-            <Button variant="outline" size="sm">
-              <Filter className="w-4 h-4 mr-2" />
-              Filter
-            </Button>
+
+            <Tabs defaultValue="all" className="w-full lg:hidden">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="all">All</TabsTrigger>
+                <TabsTrigger value="filters">Filters</TabsTrigger>
+                <TabsTrigger value="sort">Sort</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="all" className="mt-4">
+                {renderArtifactsList()}
+              </TabsContent>
+
+              <TabsContent value="filters" className="mt-4 space-y-3">
+                {renderFilters()}
+              </TabsContent>
+
+              <TabsContent value="sort" className="mt-4">
+                {renderSortOptions()}
+              </TabsContent>
+            </Tabs>
+
+            {/* Desktop view - no tabs */}
+            <div className="hidden lg:block">
+              {renderArtifactsList()}
+            </div>
           </div>
-
-          <Tabs defaultValue="all" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="all">All</TabsTrigger>
-              <TabsTrigger value="filters">Filters</TabsTrigger>
-              <TabsTrigger value="sort">Sort</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="all" className="mt-4">
-              {sortedArtifacts.length === 0 ? (
-                <Card className="p-8 text-center border-border">
-                  <Building2 className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                  <p className="text-muted-foreground">
-                    {searchQuery ? "No artifacts found matching your search." : "No artifacts cataloged yet."}
-                  </p>
-                </Card>
-              ) : (
-                <div className={viewMode === "grid" ? "grid grid-cols-1 gap-3" : "space-y-3"}>
-                  {sortedArtifacts.map((artifact) => (
-                    <Card
-                      key={artifact.id}
-                      className="p-4 border-border hover:shadow-md transition-all cursor-pointer"
-                      onClick={() => handleArtifactClick(artifact.id!)}
-                    >
-                      <div className="flex gap-3">
-                        <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
-                          {artifact.images && artifact.images.length > 0 ? (
-                            <img
-                              src={artifact.images[0]}
-                              alt={artifact.name}
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                target.onerror = null;
-                                target.style.display = 'none';
-                                const parent = target.parentElement;
-                                if (parent) {
-                                  parent.innerHTML = `<span class="text-3xl">${
-                                    artifact.type === 'Coin' ? '🪙' :
-                                    artifact.type === 'Ceramic' ? '🏺' :
-                                    artifact.type === 'Weapon' ? '🗡️' :
-                                    artifact.type === 'Glass' ? '🍶' :
-                                    artifact.type === 'Personal Ornament' ? '📎' :
-                                    artifact.type === 'Sculpture' ? '🗿' :
-                                    '🏺'
-                                  }</span>`;
-                                }
-                              }}
-                            />
-                          ) : (
-                            <span className="text-3xl">
-                              {artifact.type === 'Coin' ? '🪙' :
-                               artifact.type === 'Ceramic' ? '🏺' :
-                               artifact.type === 'Weapon' ? '🗡️' :
-                               artifact.type === 'Glass' ? '🍶' :
-                               artifact.type === 'Personal Ornament' ? '📎' :
-                               artifact.type === 'Sculpture' ? '🗿' :
-                               '🏺'}
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-2 mb-2">
-                            <h3 className="font-semibold text-foreground line-clamp-1">
-                              {artifact.name}
-                            </h3>
-                            <Badge variant="outline" className={getSignificanceColor(artifact.significance)}>
-                              {artifact.significance}
-                            </Badge>
-                          </div>
-
-                          <div className="space-y-1 mb-3">
-                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                              <Building2 className="w-3 h-3" />
-                              <span>{artifact.siteName || "Unknown Site"}</span>
-                            </div>
-                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                              <MapPin className="w-3 h-3" />
-                              <span>{artifact.location}</span>
-                            </div>
-                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                              <Calendar className="w-3 h-3" />
-                              <span>{formatDate(artifact.excavationDate)}</span>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center justify-between pt-3 border-t border-border">
-                            <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                              <Badge variant="outline" className={getConditionColor(artifact.condition)}>
-                                {artifact.condition}
-                              </Badge>
-                              <span>{artifact.material}</span>
-                              <span>{artifact.period}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </TabsContent>
-
-            <TabsContent value="filters" className="mt-4 space-y-3">
-              <div>
-                <label className="text-sm font-medium mb-2 block">Period</label>
-                <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {periods.map(period => (
-                      <SelectItem key={period} value={period}>{period}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium mb-2 block">Type</label>
-                <Select value={selectedType} onValueChange={setSelectedType}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {types.map(type => (
-                      <SelectItem key={type} value={type}>{type}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="sort" className="mt-4">
-              <div>
-                <label className="text-sm font-medium mb-2 block">Sort by</label>
-                <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="recent">Most Recent</SelectItem>
-                    <SelectItem value="oldest">Oldest First</SelectItem>
-                    <SelectItem value="name">Name A-Z</SelectItem>
-                    <SelectItem value="significance">Significance</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </TabsContent>
-          </Tabs>
         </div>
 
-        <BottomNav />
+        {/* Sidebar - Filters on desktop */}
+        <div className="hidden lg:block lg:w-80 xl:w-96 lg:flex-shrink-0 p-6">
+          <div className="sticky top-32 space-y-6">
+            <Card className="p-4 border-border/50">
+              <h3 className="font-semibold mb-4">Filters</h3>
+              {renderFilters()}
+            </Card>
+            <Card className="p-4 border-border/50">
+              <h3 className="font-semibold mb-4">Sort</h3>
+              {renderSortOptions()}
+            </Card>
+          </div>
+        </div>
       </div>
-    </div>
+    </ResponsiveLayout>
   );
+
+  function renderArtifactsList() {
+    if (sortedArtifacts.length === 0) {
+      return (
+        <Card className="p-8 lg:p-12 text-center border-border">
+          <Building2 className="w-12 h-12 lg:w-16 lg:h-16 mx-auto mb-4 text-muted-foreground" />
+          <p className="text-muted-foreground lg:text-lg">
+            {searchQuery ? "No artifacts found matching your search." : "No artifacts cataloged yet."}
+          </p>
+        </Card>
+      );
+    }
+
+    return (
+      <div className={viewMode === "grid" ? "grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-4" : "space-y-3 lg:space-y-4"}>
+        {sortedArtifacts.map((artifact) => (
+          <Card
+            key={artifact.id}
+            className="p-4 lg:p-5 border-border hover:shadow-lg active:scale-[0.99] lg:active:scale-100 transition-all cursor-pointer group"
+            onClick={() => handleArtifactClick(artifact.id!)}
+          >
+            <div className="flex gap-3 lg:gap-4">
+              <div className="w-16 h-16 lg:w-20 lg:h-20 bg-muted rounded-lg lg:rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden group-hover:scale-105 transition-transform">
+                {artifact.images && artifact.images.length > 0 ? (
+                  <img
+                    src={artifact.images[0]}
+                    alt={artifact.name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.onerror = null;
+                      target.style.display = 'none';
+                      const parent = target.parentElement;
+                      if (parent) {
+                        parent.innerHTML = `<span class="text-3xl lg:text-4xl">${
+                          artifact.type === 'Coin' ? '🪙' :
+                          artifact.type === 'Ceramic' ? '🏺' :
+                          artifact.type === 'Weapon' ? '🗡️' :
+                          artifact.type === 'Glass' ? '🍶' :
+                          artifact.type === 'Personal Ornament' ? '📎' :
+                          artifact.type === 'Sculpture' ? '🗿' :
+                          '🏺'
+                        }</span>`;
+                      }
+                    }}
+                  />
+                ) : (
+                  <span className="text-3xl lg:text-4xl">
+                    {artifact.type === 'Coin' ? '🪙' :
+                     artifact.type === 'Ceramic' ? '🏺' :
+                     artifact.type === 'Weapon' ? '🗡️' :
+                     artifact.type === 'Glass' ? '🍶' :
+                     artifact.type === 'Personal Ornament' ? '📎' :
+                     artifact.type === 'Sculpture' ? '🗿' :
+                     '🏺'}
+                  </span>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <h3 className="font-semibold text-foreground line-clamp-1 lg:text-lg group-hover:text-primary transition-colors">
+                    {artifact.name}
+                  </h3>
+                  <Badge variant="outline" className={getSignificanceColor(artifact.significance)}>
+                    {artifact.significance}
+                  </Badge>
+                </div>
+
+                <div className="space-y-1 mb-3">
+                  <div className="flex items-center gap-1 text-xs lg:text-sm text-muted-foreground">
+                    <Building2 className="w-3 h-3 lg:w-4 lg:h-4" />
+                    <span>{artifact.siteName || "Unknown Site"}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-xs lg:text-sm text-muted-foreground">
+                    <MapPin className="w-3 h-3 lg:w-4 lg:h-4" />
+                    <span>{artifact.location}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-xs lg:text-sm text-muted-foreground">
+                    <Calendar className="w-3 h-3 lg:w-4 lg:h-4" />
+                    <span>{formatDate(artifact.excavationDate)}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-3 border-t border-border">
+                  <div className="flex items-center gap-3 text-xs lg:text-sm text-muted-foreground">
+                    <Badge variant="outline" className={getConditionColor(artifact.condition)}>
+                      {artifact.condition}
+                    </Badge>
+                    <span>{artifact.material}</span>
+                    <span>{artifact.period}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
+  function renderFilters() {
+    return (
+      <div className="space-y-4">
+        <div>
+          <label className="text-sm font-medium mb-2 block">Period</label>
+          <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
+            <SelectTrigger className="h-11">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {periods.map(period => (
+                <SelectItem key={period} value={period}>{period}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <label className="text-sm font-medium mb-2 block">Type</label>
+          <Select value={selectedType} onValueChange={setSelectedType}>
+            <SelectTrigger className="h-11">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {types.map(type => (
+                <SelectItem key={type} value={type}>{type}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+    );
+  }
+
+  function renderSortOptions() {
+    return (
+      <div>
+        <label className="text-sm font-medium mb-2 block">Sort by</label>
+        <Select value={sortBy} onValueChange={setSortBy}>
+          <SelectTrigger className="h-11">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="recent">Most Recent</SelectItem>
+            <SelectItem value="oldest">Oldest First</SelectItem>
+            <SelectItem value="name">Name A-Z</SelectItem>
+            <SelectItem value="significance">Significance</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    );
+  }
 };
 
 export default Artifacts;
