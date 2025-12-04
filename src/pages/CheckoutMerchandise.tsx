@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ShoppingCart, CreditCard, MapPin, Loader2, CheckCircle2, Gift } from "lucide-react";
+import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { PageHeader } from "@/components/PageHeader";
+import { AccountButton } from "@/components/AccountButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -236,55 +238,59 @@ const CheckoutMerchandise = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
-          <p className="text-muted-foreground">Loading checkout...</p>
+      <ResponsiveLayout>
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <div className="text-center">
+            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
+            <p className="text-muted-foreground">Loading checkout...</p>
+          </div>
         </div>
-      </div>
+      </ResponsiveLayout>
     );
   }
 
   if (purchaseComplete) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <Card className="max-w-md w-full">
-          <CardContent className="pt-6 text-center">
-            <CheckCircle2 className="w-16 h-16 text-green-600 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-foreground mb-2">Thank You for Your Purchase!</h2>
-            <p className="text-muted-foreground mb-4">
-              Your order has been received successfully.
-            </p>
-            <p className="text-sm text-muted-foreground mb-6">
-              We will contact you soon when the order is ready for delivery.
-            </p>
-            <div className="bg-muted p-4 rounded-lg mb-6">
-              <p className="text-sm font-medium mb-2">Order Summary:</p>
-              <p className="text-xs text-muted-foreground">{merchandise?.name}</p>
-              <p className="text-xs text-muted-foreground">Quantity: {purchaseData.quantity}</p>
-              {isGift && (
-                <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                  <Gift className="w-3 h-3" />
-                  Gift Order
-                </p>
-              )}
-              <p className="text-sm font-bold text-primary mt-2">
-                Total: {merchandise?.currency} ${((merchandise?.price || 0) * purchaseData.quantity).toFixed(2)}
+      <ResponsiveLayout>
+        <div className="flex items-center justify-center min-h-[50vh] p-4">
+          <Card className="max-w-md w-full">
+            <CardContent className="pt-6 text-center">
+              <CheckCircle2 className="w-16 h-16 text-green-600 mx-auto mb-4" />
+              <h2 className="text-2xl font-bold text-foreground mb-2">Thank You for Your Purchase!</h2>
+              <p className="text-muted-foreground mb-4">
+                Your order has been received successfully.
               </p>
-            </div>
-
-            {isGift && giftMessage && (
-              <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg mb-6">
-                <p className="text-sm font-medium mb-2 text-blue-800 dark:text-blue-200">Gift Message:</p>
-                <p className="text-sm text-blue-700 dark:text-blue-300 italic">"{giftMessage}"</p>
+              <p className="text-sm text-muted-foreground mb-6">
+                We will contact you soon when the order is ready for delivery.
+              </p>
+              <div className="bg-muted p-4 rounded-lg mb-6">
+                <p className="text-sm font-medium mb-2">Order Summary:</p>
+                <p className="text-xs text-muted-foreground">{merchandise?.name}</p>
+                <p className="text-xs text-muted-foreground">Quantity: {purchaseData.quantity}</p>
+                {isGift && (
+                  <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                    <Gift className="w-3 h-3" />
+                    Gift Order
+                  </p>
+                )}
+                <p className="text-sm font-bold text-primary mt-2">
+                  Total: {merchandise?.currency} ${((merchandise?.price || 0) * purchaseData.quantity).toFixed(2)}
+                </p>
               </div>
-            )}
-            <Button onClick={() => navigate("/gift-shop")} className="w-full">
-              Back to Gift Shop
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+
+              {isGift && giftMessage && (
+                <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg mb-6">
+                  <p className="text-sm font-medium mb-2 text-blue-800 dark:text-blue-200">Gift Message:</p>
+                  <p className="text-sm text-blue-700 dark:text-blue-300 italic">"{giftMessage}"</p>
+                </div>
+              )}
+              <Button onClick={() => navigate("/gift-shop")} className="w-full">
+                Back to Gift Shop
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </ResponsiveLayout>
     );
   }
 
@@ -295,13 +301,28 @@ const CheckoutMerchandise = () => {
   const totalPrice = (merchandise.price || 0) * purchaseData.quantity;
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-md mx-auto">
-        <header className="bg-card p-4 border-b border-border sticky top-0 z-10">
-          <PageHeader />
-        </header>
+    <ResponsiveLayout>
+      <header className="bg-card/95 backdrop-blur-lg px-4 py-4 sm:px-6 lg:px-8 border-b border-border sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <PageHeader mobileLogoOnly />
+          <AccountButton />
+        </div>
+      </header>
 
-        <div className="p-4 lg:p-6 space-y-4 mx-auto max-w-7xl">
+      {/* Header Section */}
+      <div className="p-4 lg:p-6 space-y-4 mx-auto max-w-7xl">
+        <div className="text-center space-y-2">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
+            <ShoppingCart className="w-8 h-8 text-primary" />
+          </div>
+          <h1 className="text-2xl md:text-3xl font-bold">Complete Your Purchase</h1>
+          <p className="text-muted-foreground">
+            Review your order and complete the checkout process.
+          </p>
+        </div>
+      </div>
+
+      <div className="px-4 lg:px-6 pb-6 space-y-4 mx-auto max-w-7xl">
           {/* Merchandise Summary */}
           <Card>
             <CardHeader>
@@ -689,8 +710,7 @@ const CheckoutMerchandise = () => {
             </div>
           </form>
         </div>
-      </div>
-    </div>
+    </ResponsiveLayout>
   );
 };
 
