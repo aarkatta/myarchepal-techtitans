@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { BookOpen, Calendar, Clock, Image as ImageIcon, Mic, MicOff, Plus, Trash2, Loader2, MapPin, Package, Layers, Pencil } from "lucide-react";
 import { ResponsiveLayout } from "@/components/ResponsiveLayout";
@@ -49,6 +49,7 @@ const DigitalDiary = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<DiaryEntry | null>(null);
   const [isRecording, setIsRecording] = useState(false);
+  const speechTargetModeRef = useRef<"create" | "edit">("create");
   const [recognition, setRecognition] = useState<any>(null);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -137,10 +138,17 @@ const DigitalDiary = () => {
           }
 
           if (finalTranscript) {
-            setFormData(prev => ({
-              ...prev,
-              content: prev.content + finalTranscript
-            }));
+            if (speechTargetModeRef.current === "edit") {
+              setEditFormData(prev => ({
+                ...prev,
+                content: prev.content + finalTranscript
+              }));
+            } else {
+              setFormData(prev => ({
+                ...prev,
+                content: prev.content + finalTranscript
+              }));
+            }
           }
         };
 
@@ -163,7 +171,7 @@ const DigitalDiary = () => {
     }
   }, [toast]);
 
-  const toggleRecording = () => {
+  const toggleRecording = (mode: "create" | "edit" = "create") => {
     if (!recognition) {
       toast({
         title: "Speech Recognition Not Available",
@@ -178,6 +186,7 @@ const DigitalDiary = () => {
       setIsRecording(false);
     } else {
       try {
+        speechTargetModeRef.current = mode;
         recognition.start();
         setIsRecording(true);
         toast({
@@ -727,12 +736,12 @@ const DigitalDiary = () => {
                   <Label htmlFor="content">Your Entry</Label>
                   <Button
                     type="button"
-                    variant={isRecording ? "destructive" : "outline"}
+                    variant={isRecording && speechTargetModeRef.current === "create" ? "destructive" : "outline"}
                     size="sm"
-                    onClick={toggleRecording}
+                    onClick={() => toggleRecording("create")}
                     className="gap-2"
                   >
-                    {isRecording ? (
+                    {isRecording && speechTargetModeRef.current === "create" ? (
                       <>
                         <MicOff className="w-4 h-4" />
                         Stop
@@ -752,7 +761,7 @@ const DigitalDiary = () => {
                   onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                   className="min-h-32 border-border"
                 />
-                {isRecording && (
+                {isRecording && speechTargetModeRef.current === "create" && (
                   <div className="flex items-center gap-2 text-sm text-destructive">
                     <div className="w-2 h-2 bg-destructive rounded-full animate-pulse" />
                     <span>Recording in progress... Speak now</span>
@@ -855,16 +864,43 @@ const DigitalDiary = () => {
                 />
               </div>
 
-              {/* Content */}
+              {/* Content with Speech-to-Text */}
               <div className="space-y-2">
-                <Label htmlFor="edit-content">Your Entry</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="edit-content">Your Entry</Label>
+                  <Button
+                    type="button"
+                    variant={isRecording && speechTargetModeRef.current === "edit" ? "destructive" : "outline"}
+                    size="sm"
+                    onClick={() => toggleRecording("edit")}
+                    className="gap-2"
+                  >
+                    {isRecording && speechTargetModeRef.current === "edit" ? (
+                      <>
+                        <MicOff className="w-4 h-4" />
+                        Stop
+                      </>
+                    ) : (
+                      <>
+                        <Mic className="w-4 h-4" />
+                        Record
+                      </>
+                    )}
+                  </Button>
+                </div>
                 <Textarea
                   id="edit-content"
-                  placeholder="What's on your mind?"
+                  placeholder="What's on your mind? (Type or use voice recording)"
                   value={editFormData.content}
                   onChange={(e) => setEditFormData({ ...editFormData, content: e.target.value })}
                   className="min-h-32 border-border"
                 />
+                {isRecording && speechTargetModeRef.current === "edit" && (
+                  <div className="flex items-center gap-2 text-sm text-destructive">
+                    <div className="w-2 h-2 bg-destructive rounded-full animate-pulse" />
+                    <span>Recording in progress... Speak now</span>
+                  </div>
+                )}
               </div>
 
               <DialogFooter>
