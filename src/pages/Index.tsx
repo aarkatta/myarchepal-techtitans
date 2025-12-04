@@ -60,7 +60,7 @@ const Index = () => {
 
       <main className="animate-fade-in">
         {/* Two-column layout on desktop */}
-        <div className="lg:flex lg:gap-8 lg:px-8 lg:py-6">
+        <div className="lg:flex lg:gap-8 px-4 mx-auto max-w-7xl lg:py-6">
           {/* Main content column */}
           <div className="lg:flex-1">
             <QuickActions />

@@ -15,7 +15,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Send, Loader2, ChevronLeft, Mic, MicOff } from "lucide-react";
-import { BottomNav } from "@/components/BottomNav";
+import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -260,13 +260,12 @@ const Feedback = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-md mx-auto">
-        <header className="bg-card p-4 border-b border-border">
-          <PageHeader />
-        </header>
+    <ResponsiveLayout>
+      <header className="bg-card p-4 border-b border-border lg:static">
+        <PageHeader />
+      </header>
 
-        <div className="p-4">
+      <div className="p-4 lg:p-6 mx-auto max-w-7xl">
           <div className="flex items-center gap-3 mb-4">
             <Button
               variant="ghost"
@@ -471,11 +470,8 @@ const Feedback = () => {
               </Button>
             )}
           </div>
-        </div>
-
-        <BottomNav />
       </div>
-    </div>
+    </ResponsiveLayout>
   );
 };
 

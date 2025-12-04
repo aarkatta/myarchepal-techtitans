@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mail, Phone, MapPin, Send, Loader2 } from "lucide-react";
+import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { PageHeader } from "@/components/PageHeader";
-import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -92,13 +92,12 @@ const ContactUs = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-md mx-auto">
-        <header className="bg-card p-4 border-b border-border sticky top-0 z-10">
-          <PageHeader />
-        </header>
+    <ResponsiveLayout>
+      <header className="bg-card p-4 border-b border-border sticky top-0 z-10 lg:static">
+        <PageHeader />
+      </header>
 
-        <div className="p-4 space-y-4">
+      <div className="p-4 lg:p-6 space-y-4 mx-auto max-w-7xl">
           {/* Header Section */}
           <Card>
             <CardHeader>
@@ -235,11 +234,8 @@ const ContactUs = () => {
               </form>
             </CardContent>
           </Card>
-        </div>
-
-        <BottomNav />
       </div>
-    </div>
+    </ResponsiveLayout>
   );
 };
 

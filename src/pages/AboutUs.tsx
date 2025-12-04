@@ -1,17 +1,16 @@
-import { BottomNav } from "@/components/BottomNav";
+import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { Heart, Users, Lightbulb, Globe } from "lucide-react";
 
 export default function AboutUs() {
   return (
-    <div className="min-h-screen bg-background pb-nav safe-top">
-      <div className="max-w-lg mx-auto">
-        <header className="bg-card/95 backdrop-blur-lg px-4 py-4 sm:px-6 border-b border-border sticky top-0 z-40">
-          <PageHeader />
-        </header>
+    <ResponsiveLayout>
+      <header className="bg-card/95 backdrop-blur-lg px-4 py-4 sm:px-6 border-b border-border sticky top-0 z-40 lg:static">
+        <PageHeader />
+      </header>
 
-        <div className="p-4 sm:p-6 space-y-6 animate-fade-in">
+      <div className="p-4 sm:p-6 lg:p-8 space-y-6 animate-fade-in mx-auto max-w-7xl">
           {/* Hero Section */}
           <div className="text-center space-y-3">
             <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-primary/10">
@@ -45,7 +44,7 @@ export default function AboutUs() {
           </Card>
 
           {/* Values Grid */}
-          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
             <Card className="border-border/50 p-3 sm:p-4">
               <div className="flex flex-col items-center text-center space-y-2">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-500/10 flex items-center justify-center">
@@ -86,10 +85,7 @@ export default function AboutUs() {
               </div>
             </Card>
           </div>
-        </div>
-
-        <BottomNav />
       </div>
-    </div>
+    </ResponsiveLayout>
   );
 }

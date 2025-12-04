@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { BookOpen, Calendar, Clock, Image as ImageIcon, Mic, MicOff, Plus, Trash2, Loader2, MapPin, Package, Layers } from "lucide-react";
+import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { AccountButton } from "@/components/AccountButton";
-import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -384,51 +384,47 @@ const DigitalDiary = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-background pb-24">
-        <div className="max-w-md mx-auto">
-          <header className="bg-card p-4 border-b border-border sticky top-0 z-10">
-            <div className="flex items-center justify-between">
-              <PageHeader />
-              <AccountButton />
-            </div>
-          </header>
-          <div className="p-4">
-            <Card>
-              <CardContent className="pt-6 text-center">
-                <BookOpen className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                <p className="text-muted-foreground mb-4">
-                  Please sign in to access your digital diary
-                </p>
-                <Button
-                  onClick={() => navigate('/authentication/sign-in')}
-                  variant="outline"
-                >
-                  Sign In
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-          <BottomNav />
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-md mx-auto">
-        <header className="bg-card p-4 border-b border-border sticky top-0 z-10">
+      <ResponsiveLayout>
+        <header className="bg-card p-4 border-b border-border sticky top-0 z-10 lg:static">
           <div className="flex items-center justify-between">
             <PageHeader />
             <AccountButton />
           </div>
         </header>
+        <div className="p-4 lg:p-6">
+          <Card>
+            <CardContent className="pt-6 text-center">
+              <BookOpen className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+              <p className="text-muted-foreground mb-4">
+                Please sign in to access your digital diary
+              </p>
+              <Button
+                onClick={() => navigate('/authentication/sign-in')}
+                variant="outline"
+              >
+                Sign In
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </ResponsiveLayout>
+    );
+  }
 
-        <div className="p-4 space-y-4">
+  return (
+    <ResponsiveLayout>
+      <header className="bg-card/95 backdrop-blur-lg px-4 py-4 sm:px-6 lg:px-8 border-b border-border sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <PageHeader showLogo={false} />
+          <AccountButton />
+        </div>
+      </header>
+
+      <div className="p-4 lg:p-6 space-y-4 mx-auto max-w-7xl">
           {/* Header with Create Button */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">My Digital Diary</h1>
+              <h1 className="text-xl md:text-2xl font-bold text-foreground">My Digital Diary</h1>
               <p className="text-sm text-muted-foreground">Record your thoughts and memories</p>
             </div>
             <Button onClick={() => setIsCreateDialogOpen(true)} className="gap-2">
@@ -698,12 +694,7 @@ const DigitalDiary = () => {
             </form>
           </DialogContent>
         </Dialog>
-
-
-
-        <BottomNav />
-      </div>
-    </div>
+    </ResponsiveLayout>
   );
 };
 

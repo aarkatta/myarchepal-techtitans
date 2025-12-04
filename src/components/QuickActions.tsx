@@ -27,8 +27,8 @@ export const QuickActions = () => {
         <h3 className="text-h3 font-bold text-foreground mb-3 md:mb-4 lg:mb-5 font-heading leading-tight tracking-tight">
           Quick Actions
         </h3>
-        {/* Responsive grid: 2 cols on mobile, 4 cols on lg+ */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 md:gap-4 lg:gap-5">
+        {/* Responsive grid: 3 cols on mobile, 4 cols on lg+ */}
+        <div className="grid grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3 md:gap-4 lg:gap-5">
           {actions.map((action, index) => (
             <Card
               key={action.label}

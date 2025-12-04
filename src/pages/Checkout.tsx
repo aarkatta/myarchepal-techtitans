@@ -326,7 +326,7 @@ const Checkout = () => {
           <PageHeader />
         </header>
 
-        <div className="p-4 space-y-4">
+        <div className="p-4 lg:p-6 space-y-4 mx-auto max-w-7xl">
           {/* Artifact Summary */}
           <Card>
             <CardHeader>

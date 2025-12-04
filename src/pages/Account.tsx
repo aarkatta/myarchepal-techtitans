@@ -15,7 +15,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mail, Settings, Bell, Shield, HelpCircle, LogOut, Building2, Award, Calendar, Loader2, UserPlus, MessageSquare } from "lucide-react";
-import { BottomNav } from "@/components/BottomNav";
+import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -107,13 +107,12 @@ const Account = () => {
     : "U";  // Default fallback initial
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-md mx-auto">
-        <header className="bg-card p-4 border-b border-border">
-          <PageHeader />
-        </header>
+    <ResponsiveLayout>
+      <header className="bg-card p-4 border-b border-border lg:static">
+        <PageHeader />
+      </header>
 
-        <div className="p-4 space-y-4">
+      <div className="p-4 lg:p-6 space-y-4 mx-auto max-w-7xl">
           <Card className="p-6 border-border">
             {profileLoading ? (
               <div className="flex items-center justify-center py-8">
@@ -252,11 +251,8 @@ const Account = () => {
             <p>ArchePal v1.0.0</p>
             <p className="mt-1">© 2025 All rights reserved</p>
           </div>
-        </div>
-
-        <BottomNav />
       </div>
-    </div>
+    </ResponsiveLayout>
   );
 };
 

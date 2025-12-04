@@ -546,7 +546,7 @@ const EditArtifact = () => {
           <PageHeader />
         </header>
 
-        <div className="p-4 space-y-6">
+        <div className="p-4 lg:p-6 space-y-6 mx-auto max-w-7xl">
           <Card className="p-6 border-border">
             {imagePreview ? (
               <div className="relative">

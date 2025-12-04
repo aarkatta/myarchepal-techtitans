@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
-import { ChevronRight, Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Loader2, MapPin, Calendar } from "lucide-react";
 import { ArtifactsService, Artifact } from "@/services/artifacts";
 import { Timestamp } from "firebase/firestore";
 
@@ -92,17 +93,17 @@ export const RecentFinds = () => {
             <p className="text-muted-foreground text-body font-sans leading-normal">No recent artifacts</p>
           </Card>
         ) : (
-          /* Responsive grid: 1 col on mobile, 2 cols on md, 4 cols on 2xl */
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2.5 sm:gap-3 md:gap-4 lg:gap-5">
+          /* Responsive grid: 1 col on mobile, 4 cols on md with cards spanning 2 cols each */
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-4 lg:gap-5">
             {recentArtifacts.map((artifact, index) => (
               <Card
                 key={artifact.id}
-                className="p-3 md:p-4 hover:shadow-lg active:scale-[0.99] lg:active:scale-100 lg:hover:-translate-y-1 transition-all duration-200 cursor-pointer border-border/50 flex items-center justify-between animate-slide-up group"
+                className="p-3 sm:p-4 border-border/50 hover:shadow-lg active:scale-[0.99] lg:active:scale-100 transition-all duration-200 cursor-pointer animate-slide-up group md:col-span-2"
                 style={{ animationDelay: `${index * 75}ms` }}
                 onClick={() => navigate(`/artifact/${artifact.id}`)}
               >
-                <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-18 lg:h-18 2xl:w-20 2xl:h-20 bg-muted rounded-lg md:rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0 group-hover:scale-105 transition-transform duration-200">
+                <div className="flex gap-3">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 bg-muted rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden group-hover:scale-105 transition-transform">
                     {artifact.images && artifact.images.length > 0 ? (
                       <img
                         src={artifact.images[0]}
@@ -114,27 +115,48 @@ export const RecentFinds = () => {
                           target.style.display = 'none';
                           const parent = target.parentElement;
                           if (parent) {
-                            parent.innerHTML = `<span class="text-2xl md:text-3xl lg:text-4xl">${getArtifactIcon(artifact.type)}</span>`;
+                            parent.innerHTML = `<span class="text-2xl sm:text-3xl">${getArtifactIcon(artifact.type)}</span>`;
                           }
                         }}
                       />
                     ) : (
-                      <span className="text-2xl md:text-3xl lg:text-4xl">{getArtifactIcon(artifact.type)}</span>
+                      <span className="text-2xl sm:text-3xl">{getArtifactIcon(artifact.type)}</span>
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-h4 font-semibold text-foreground line-clamp-1 font-sans leading-snug group-hover:text-primary transition-colors">
-                      {artifact.name}
-                    </h4>
-                    <div className="flex items-center gap-1 text-caption text-muted-foreground font-sans leading-snug">
-                      <span className="truncate">{artifact.type} • {artifact.material}</span>
+                    <div className="flex items-start justify-between gap-2 mb-1.5 sm:mb-2">
+                      <h4 className="font-semibold text-sm sm:text-base lg:text-lg text-foreground line-clamp-1 group-hover:text-primary transition-colors">
+                        {artifact.name}
+                      </h4>
+                      <Badge variant="outline" className="bg-muted text-muted-foreground border-border/50 flex-shrink-0 text-[10px] sm:text-xs">
+                        {artifact.condition}
+                      </Badge>
                     </div>
-                    <div className="text-micro text-muted-foreground font-sans leading-snug">
-                      {formatDate(artifact.createdAt)}
+
+                    <div className="space-y-0.5 sm:space-y-1 mb-2 sm:mb-3">
+                      <div className="flex items-center gap-1.5 text-[11px] sm:text-xs lg:text-sm text-muted-foreground">
+                        <MapPin className="w-3 h-3 lg:w-4 lg:h-4 flex-shrink-0" />
+                        <span className="truncate">{artifact.location || artifact.siteName || "Unknown location"}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-[11px] sm:text-xs lg:text-sm text-muted-foreground">
+                        <Calendar className="w-3 h-3 lg:w-4 lg:h-4 flex-shrink-0" />
+                        <span>{formatDate(artifact.createdAt)}</span>
+                      </div>
+                    </div>
+
+                    <p className="text-[11px] sm:text-xs lg:text-sm text-muted-foreground line-clamp-2 mb-2 sm:mb-3">
+                      {artifact.description || "No description available"}
+                    </p>
+
+                    <div className="flex items-center justify-between pt-2 sm:pt-3 border-t border-border/50">
+                      <div className="flex items-center gap-3 sm:gap-4 text-[10px] sm:text-xs lg:text-sm text-muted-foreground">
+                        <span>{artifact.type}</span>
+                        <span>•</span>
+                        <span>{artifact.material}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-                <ChevronRight className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-muted-foreground flex-shrink-0 group-hover:translate-x-1 transition-transform duration-200" />
               </Card>
             ))}
           </div>

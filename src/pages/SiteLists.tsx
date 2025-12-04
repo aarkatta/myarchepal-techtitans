@@ -27,7 +27,6 @@ const SiteLists = () => {
   const [filteredSites, setFilteredSites] = useState<Site[]>([]);
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
   const [settingActiveProject, setSettingActiveProject] = useState(false);
-  const [clearingAllActive, setClearingAllActive] = useState(false);
 
   // Fetch active project ID for archaeologist
   useEffect(() => {
@@ -127,37 +126,6 @@ const SiteLists = () => {
     }
   };
 
-  const handleClearAllActiveProjects = async () => {
-    if (!user) {
-      toast({
-        title: "Access denied",
-        description: "You must be logged in",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      setClearingAllActive(true);
-      await ArchaeologistService.clearAllActiveProjects();
-      setActiveProjectId(null);
-
-      toast({
-        title: "Success",
-        description: "All active project assignments have been cleared. Archaeologists can now choose their active sites."
-      });
-    } catch (error) {
-      console.error("Error clearing all active projects:", error);
-      toast({
-        title: "Error",
-        description: "Failed to clear active projects",
-        variant: "destructive"
-      });
-    } finally {
-      setClearingAllActive(false);
-    }
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -187,7 +155,7 @@ const SiteLists = () => {
       <header className="bg-card/95 backdrop-blur-lg px-4 py-4 sm:px-6 lg:px-8 border-b border-border sticky top-0 z-40">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <PageHeader />
+            <PageHeader showLogo={false} />
             <div className="flex items-center gap-2">
               {user && (
                 <Button
@@ -235,26 +203,8 @@ const SiteLists = () => {
         </div>
       </header>
 
-      {/* Two-column layout on desktop */}
-      <div className="lg:flex lg:gap-8 max-w-7xl mx-auto">
-        {/* Main content */}
-        <div className="lg:flex-1">
-          {/* Site Conditions for Active Project - Only for Archaeologists (mobile view) */}
-          <div className="lg:hidden">
-            {user && isArchaeologist && activeProjectId && (() => {
-              const activeProjectSite = sites.find(site => site.id === activeProjectId);
-              if (activeProjectSite?.location?.latitude && activeProjectSite?.location?.longitude) {
-                return (
-                  <SiteConditions
-                    latitude={activeProjectSite.location.latitude}
-                    longitude={activeProjectSite.location.longitude}
-                  />
-                );
-              }
-              return null;
-            })()}
-          </div>
-
+      {/* Main content */}
+      <div className="max-w-7xl mx-auto">
           <div className="p-3 sm:p-4 lg:p-6 space-y-3 lg:space-y-4">
             {filteredSites.length === 0 ? (
               <Card className="p-8 sm:p-12 text-center border-border/50 animate-fade-in">
@@ -264,14 +214,14 @@ const SiteLists = () => {
                 </p>
               </Card>
             ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {filteredSites.map((site, index) => {
                   const isActiveProject = activeProjectId === site.id;
                   return (
                     <Card
                       key={site.id}
                       className={`p-3 sm:p-4 border-border/50 hover:shadow-lg active:scale-[0.99] lg:active:scale-100 transition-all duration-200 cursor-pointer animate-slide-up group ${
-                        isActiveProject ? 'ring-2 ring-primary/50 bg-primary/5' : ''
+                        isActiveProject ? 'ring-2 ring-primary/50 bg-primary/5 md:col-span-2' : ''
                       }`}
                       style={{ animationDelay: `${index * 50}ms` }}
                       onClick={() => handleSiteClick(site.id)}
@@ -359,31 +309,21 @@ const SiteLists = () => {
                           </div>
                         </div>
                       </div>
+                      {/* Site Conditions - Only for Active Project */}
+                      {isActiveProject && user && isArchaeologist && site.location?.latitude && site.location?.longitude && (
+                        <div className="mt-3 pt-3 border-t border-border/50" onClick={(e) => e.stopPropagation()}>
+                          <SiteConditions
+                            latitude={site.location.latitude}
+                            longitude={site.location.longitude}
+                          />
+                        </div>
+                      )}
                     </Card>
                   );
                 })}
               </div>
             )}
           </div>
-        </div>
-
-        {/* Sidebar - Site Conditions on desktop */}
-        <div className="hidden lg:block lg:w-80 xl:w-96 lg:flex-shrink-0 p-6">
-          <div className="sticky top-32">
-            {user && isArchaeologist && activeProjectId && (() => {
-              const activeProjectSite = sites.find(site => site.id === activeProjectId);
-              if (activeProjectSite?.location?.latitude && activeProjectSite?.location?.longitude) {
-                return (
-                  <SiteConditions
-                    latitude={activeProjectSite.location.latitude}
-                    longitude={activeProjectSite.location.longitude}
-                  />
-                );
-              }
-              return null;
-            })()}
-          </div>
-        </div>
       </div>
     </ResponsiveLayout>
   );

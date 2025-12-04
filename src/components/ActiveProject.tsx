@@ -1,11 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, Loader2 } from "lucide-react";
+import { Calendar, MapPin, Loader2, FileText } from "lucide-react";
 import { useSites } from "@/hooks/use-sites";
 import { useAuth } from "@/hooks/use-auth";
 import { useArchaeologist } from "@/hooks/use-archaeologist";
 import { ArchaeologistService } from "@/services/archaeologists";
+import { SiteConditions } from "@/components/SiteConditions";
 import { Timestamp } from "firebase/firestore";
 import { useState, useEffect } from "react";
 
@@ -123,12 +124,14 @@ export const ActiveProject = () => {
               return (
               <Card
                 key={site.id}
-                className="p-3 sm:p-4 md:p-5 border-border/50 hover:shadow-lg active:scale-[0.99] lg:active:scale-100 lg:hover:-translate-y-1 transition-all duration-200 cursor-pointer animate-slide-up group"
+                className={`p-3 sm:p-4 border-border/50 hover:shadow-lg active:scale-[0.99] lg:active:scale-100 transition-all duration-200 cursor-pointer animate-slide-up group ${
+                  isActiveProject ? 'ring-2 ring-primary/50 bg-primary/5 md:col-span-2' : ''
+                }`}
                 style={{ animationDelay: `${index * 75}ms` }}
                 onClick={() => navigate(`/site/${site.id}`)}
               >
-                <div className="flex gap-3 md:gap-4">
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 bg-muted rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden group-hover:scale-105 transition-transform">
+                <div className="flex gap-3">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 bg-muted rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden group-hover:scale-105 transition-transform">
                     {site.images && site.images.length > 0 ? (
                       <img
                         src={site.images[0]}
@@ -140,35 +143,65 @@ export const ActiveProject = () => {
                           target.style.display = 'none';
                           const parent = target.parentElement;
                           if (parent) {
-                            parent.innerHTML = '<span class="text-2xl md:text-3xl lg:text-4xl">🏛️</span>';
+                            parent.innerHTML = '<span class="text-2xl sm:text-3xl">🏛️</span>';
                           }
                         }}
                       />
                     ) : (
-                      <span className="text-2xl md:text-3xl lg:text-4xl">🏛️</span>
+                      <span className="text-2xl sm:text-3xl">🏛️</span>
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2 mb-1.5 md:mb-2">
-                      <h4 className="text-h4 font-semibold text-foreground line-clamp-1 font-sans leading-snug group-hover:text-primary transition-colors">{site.name}</h4>
-                      {isActiveProject && (
-                        <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 flex-shrink-0 text-micro font-medium">
-                          Active
-                        </Badge>
-                      )}
+                    <div className="flex items-start justify-between gap-2 mb-1.5 sm:mb-2">
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold text-sm sm:text-base lg:text-lg text-foreground line-clamp-1 group-hover:text-primary transition-colors">
+                          {site.name}
+                        </h4>
+                        {isActiveProject && (
+                          <Badge variant="outline" className="mt-1 bg-primary/10 text-primary border-primary/20 text-[10px] sm:text-xs">
+                            Active Project
+                          </Badge>
+                        )}
+                      </div>
                     </div>
-                    <div className="space-y-0.5 md:space-y-1">
-                      <div className="flex items-center gap-1 md:gap-1.5 text-caption text-muted-foreground font-sans leading-snug">
-                        <MapPin className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
+
+                    <div className="space-y-0.5 sm:space-y-1 mb-2 sm:mb-3">
+                      <div className="flex items-center gap-1.5 text-[11px] sm:text-xs lg:text-sm text-muted-foreground">
+                        <MapPin className="w-3 h-3 lg:w-4 lg:h-4 flex-shrink-0" />
                         <span className="truncate">{getLocationDisplay(site)}</span>
                       </div>
-                      <div className="flex items-center gap-1 md:gap-1.5 text-caption text-muted-foreground font-sans leading-snug">
-                        <Calendar className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
-                        <span>Discovered: {formatDate(site.dateDiscovered)}</span>
+                      <div className="flex items-center gap-1.5 text-[11px] sm:text-xs lg:text-sm text-muted-foreground">
+                        <Calendar className="w-3 h-3 lg:w-4 lg:h-4 flex-shrink-0" />
+                        <span>{formatDate(site.updatedAt || site.createdAt)}</span>
+                      </div>
+                    </div>
+
+                    <p className="text-[11px] sm:text-xs lg:text-sm text-muted-foreground line-clamp-2 mb-2 sm:mb-3">
+                      {site.description || "No description available"}
+                    </p>
+
+                    <div className="flex items-center justify-between pt-2 sm:pt-3 border-t border-border/50">
+                      <div className="flex items-center gap-3 sm:gap-4 text-[10px] sm:text-xs lg:text-sm text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <FileText className="w-3 h-3 lg:w-4 lg:h-4" />
+                          <span>{site.artifacts?.length || 0} artifacts</span>
+                        </div>
+                        {site.period && (
+                          <span className="text-muted-foreground">{site.period}</span>
+                        )}
                       </div>
                     </div>
                   </div>
                 </div>
+                {/* Site Conditions - Only for Active Project */}
+                {isActiveProject && user && isArchaeologist && site.location?.latitude && site.location?.longitude && (
+                  <div className="mt-3 pt-3 border-t border-border/50" onClick={(e) => e.stopPropagation()}>
+                    <SiteConditions
+                      latitude={site.location.latitude}
+                      longitude={site.location.longitude}
+                    />
+                  </div>
+                )}
               </Card>
               );
             })}

@@ -122,7 +122,7 @@ const Artifacts = () => {
       <header className="bg-card/95 backdrop-blur-lg px-4 py-4 sm:px-6 lg:px-8 border-b border-border sticky top-0 z-40">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <PageHeader />
+            <PageHeader showLogo={false} />
             <div className="flex items-center gap-2">
               {user && (
                 <Button
@@ -257,11 +257,11 @@ const Artifacts = () => {
     }
 
     return (
-      <div className={viewMode === "grid" ? "grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-4" : "space-y-3 lg:space-y-4"}>
+      <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-4 gap-4" : "space-y-4"}>
         {sortedArtifacts.map((artifact) => (
           <Card
             key={artifact.id}
-            className="p-4 lg:p-5 border-border hover:shadow-lg active:scale-[0.99] lg:active:scale-100 transition-all cursor-pointer group"
+            className="p-3 sm:p-4 border-border/50 hover:shadow-lg active:scale-[0.99] lg:active:scale-100 transition-all cursor-pointer group md:col-span-2"
             onClick={() => handleArtifactClick(artifact.id!)}
           >
             <div className="flex gap-3 lg:gap-4">

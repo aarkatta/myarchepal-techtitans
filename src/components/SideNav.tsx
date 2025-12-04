@@ -117,7 +117,7 @@ export const SideNav = () => {
           className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group mb-1 ${
             isActive("/")
               ? "bg-primary/10 text-primary"
-              : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+              : "text-slate-700 dark:text-slate-300 hover:text-foreground hover:bg-muted/50"
           }`}
         >
           <Home className={`w-5 h-5 transition-transform group-hover:scale-110 ${
@@ -133,7 +133,7 @@ export const SideNav = () => {
               className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                 isExploreActive && !isExploreOpen
                   ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  : "text-slate-700 dark:text-slate-300 hover:text-foreground hover:bg-muted/50"
               }`}
             >
               <span className="flex items-center gap-3">
@@ -148,10 +148,10 @@ export const SideNav = () => {
               <button
                 key={item.path}
                 onClick={() => navigate(item.path)}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 pl-12 text-sm rounded-lg transition-colors ${
+                className={`w-full flex items-center gap-3 px-4 py-2.5 pl-12 text-sm font-medium rounded-lg transition-colors ${
                   isActive(item.path)
                     ? "text-primary bg-primary/5"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    : "text-slate-600 dark:text-slate-400 hover:text-foreground hover:bg-muted/50"
                 }`}
               >
                 <item.icon className="w-4 h-4" />
@@ -166,7 +166,7 @@ export const SideNav = () => {
           <Collapsible open={isCreateOpen} onOpenChange={setIsCreateOpen} className="mb-1">
             <CollapsibleTrigger asChild>
               <button
-                className="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                className="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 text-slate-700 dark:text-slate-300 hover:text-foreground hover:bg-muted/50"
               >
                 <span className="flex items-center gap-3">
                   <Plus className="w-5 h-5" />
@@ -183,7 +183,7 @@ export const SideNav = () => {
                     navigate(item.path);
                     setIsCreateOpen(false);
                   }}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 pl-12 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-2.5 pl-12 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-foreground hover:bg-muted/50 rounded-lg transition-colors"
                 >
                   <item.icon className="w-4 h-4" />
                   {item.label}
@@ -200,7 +200,7 @@ export const SideNav = () => {
               className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                 isGiftShopActive && !isGiftShopOpen
                   ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  : "text-slate-700 dark:text-slate-300 hover:text-foreground hover:bg-muted/50"
               }`}
             >
               <span className="flex items-center gap-3">
@@ -215,10 +215,10 @@ export const SideNav = () => {
               <button
                 key={item.path}
                 onClick={() => navigate(item.path)}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 pl-12 text-sm rounded-lg transition-colors ${
+                className={`w-full flex items-center gap-3 px-4 py-2.5 pl-12 text-sm font-medium rounded-lg transition-colors ${
                   isActive(item.path)
                     ? "text-primary bg-primary/5"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    : "text-slate-600 dark:text-slate-400 hover:text-foreground hover:bg-muted/50"
                 }`}
               >
                 <item.icon className="w-4 h-4" />
@@ -236,7 +236,7 @@ export const SideNav = () => {
                 className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                   isAccountActive && !isAccountOpen
                     ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    : "text-slate-700 dark:text-slate-300 hover:text-foreground hover:bg-muted/50"
                 }`}
               >
                 <span className="flex items-center gap-3">
@@ -251,10 +251,10 @@ export const SideNav = () => {
                 <button
                   key={item.path + item.label}
                   onClick={() => navigate(item.path)}
-                  className={`w-full flex items-center gap-3 px-4 py-2.5 pl-12 text-sm rounded-lg transition-colors ${
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 pl-12 text-sm font-medium rounded-lg transition-colors ${
                     isActive(item.path) && item.label === "Profile"
                       ? "text-primary bg-primary/5"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                      : "text-slate-600 dark:text-slate-400 hover:text-foreground hover:bg-muted/50"
                   }`}
                 >
                   <item.icon className="w-4 h-4" />
@@ -264,7 +264,7 @@ export const SideNav = () => {
               {/* Logout Button */}
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-4 py-2.5 pl-12 text-sm rounded-lg transition-colors text-destructive hover:bg-destructive/10"
+                className="w-full flex items-center gap-3 px-4 py-2.5 pl-12 text-sm font-medium rounded-lg transition-colors text-destructive hover:bg-destructive/10"
               >
                 <LogOut className="w-4 h-4" />
                 Logout

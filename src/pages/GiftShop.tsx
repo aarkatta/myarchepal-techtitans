@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ShoppingBag, ShoppingCart, Loader2, Plus, Minus } from "lucide-react";
-import { BottomNav } from "@/components/BottomNav";
+import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { AccountButton } from "@/components/AccountButton";
 import { Button } from "@/components/ui/button";
@@ -113,66 +113,65 @@ const GiftShop = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-md mx-auto">
-        <header className="bg-card p-4 border-b border-border sticky top-0 z-10">
-          <div className="flex items-center justify-between mb-4">
-            <PageHeader />
-            <div className="flex items-center gap-2">
-              {user && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigate("/create-merchandise")}
-                  className="hover:bg-muted hover:text-primary"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Item
-                </Button>
-              )}
+    <ResponsiveLayout>
+      <header className="bg-card/95 backdrop-blur-lg px-4 py-4 sm:px-6 lg:px-8 border-b border-border sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto flex items-center justify-between mb-4">
+          <PageHeader mobileLogoOnly />
+          <div className="flex items-center gap-2">
+            {user && (
               <Button
                 variant="outline"
                 size="sm"
-                onClick={handleSyncFromStorage}
-                disabled={syncing}
+                onClick={() => navigate("/create-merchandise")}
                 className="hover:bg-muted hover:text-primary"
               >
-                {syncing ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Syncing...
-                  </>
-                ) : (
-                  <>
-                    <ShoppingBag className="w-4 h-4 mr-2" />
-                    Refresh
-                  </>
-                )}
+                <Plus className="w-4 h-4 mr-2" />
+                Add Item
               </Button>
-              <AccountButton />
-            </div>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSyncFromStorage}
+              disabled={syncing}
+              className="hover:bg-muted hover:text-primary"
+            >
+              {syncing ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Syncing...
+                </>
+              ) : (
+                <>
+                  <ShoppingBag className="w-4 h-4 mr-2" />
+                  Refresh
+                </>
+              )}
+            </Button>
+            <AccountButton />
           </div>
+        </div>
 
-          <div className="flex items-center gap-2 mb-4">
-            <ShoppingBag className="w-6 h-6 text-primary" />
-            <h1 className="text-2xl font-bold text-foreground">Gift Shop</h1>
-          </div>
+        <div className="flex items-center gap-2 mb-4">
+          <ShoppingBag className="w-6 h-6 text-primary" />
+          <h1 className="text-2xl font-bold text-foreground">Gift Shop</h1>
+        </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <Card className="p-3 border-border text-center">
-              <p className="text-2xl font-bold text-primary">{merchandise.length}</p>
-              <p className="text-xs text-muted-foreground">Items Available</p>
-            </Card>
-            <Card className="p-3 border-border text-center">
-              <p className="text-2xl font-bold text-green-600">
-                {merchandise.filter(item => item.quantity > 0).length}
-              </p>
-              <p className="text-xs text-muted-foreground">In Stock</p>
-            </Card>
-          </div>
-        </header>
+        <div className="grid grid-cols-2 gap-3">
+          <Card className="p-3 border-border text-center">
+            <p className="text-2xl font-bold text-primary">{merchandise.length}</p>
+            <p className="text-xs text-muted-foreground">Items Available</p>
+          </Card>
+          <Card className="p-3 border-border text-center">
+            <p className="text-2xl font-bold text-green-600">
+              {merchandise.filter(item => item.quantity > 0).length}
+            </p>
+            <p className="text-xs text-muted-foreground">In Stock</p>
+          </Card>
+        </div>
+      </header>
 
-        <div className="p-4">
+      <div className="p-4 lg:p-6 mx-auto max-w-7xl">
           {merchandise.length === 0 ? (
             <Card className="p-8 text-center border-border">
               <ShoppingBag className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
@@ -191,7 +190,7 @@ const GiftShop = () => {
               </Button>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {merchandise.map((item) => (
                 <Card
                   key={item.id}
@@ -254,11 +253,8 @@ const GiftShop = () => {
               ))}
             </div>
           )}
-        </div>
-
-        <BottomNav />
       </div>
-    </div>
+    </ResponsiveLayout>
   );
 };
 
