@@ -214,14 +214,14 @@ const SiteLists = () => {
                 </p>
               </Card>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 500px), 1fr))' }}>
                 {filteredSites.map((site, index) => {
                   const isActiveProject = activeProjectId === site.id;
                   return (
                     <Card
                       key={site.id}
                       className={`p-3 sm:p-4 border-border/50 hover:shadow-lg active:scale-[0.99] lg:active:scale-100 transition-all duration-200 cursor-pointer animate-slide-up group ${
-                        isActiveProject ? 'ring-2 ring-primary/50 bg-primary/5 md:col-span-2' : ''
+                        isActiveProject ? 'ring-2 ring-primary/50 bg-primary/5' : ''
                       }`}
                       style={{ animationDelay: `${index * 50}ms` }}
                       onClick={() => handleSiteClick(site.id)}

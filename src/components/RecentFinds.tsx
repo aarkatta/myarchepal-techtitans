@@ -93,12 +93,14 @@ export const RecentFinds = () => {
             <p className="text-muted-foreground text-body font-sans leading-normal">No recent artifacts</p>
           </Card>
         ) : (
-          /* Grid layout matching site-lists page */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-5">
+          <div
+            className="grid gap-3 md:gap-4 lg:gap-5"
+            style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 500px), 1fr))' }}
+          >
             {recentArtifacts.map((artifact, index) => (
               <Card
                 key={artifact.id}
-                className="p-3 sm:p-4 border-border/50 hover:shadow-lg active:scale-[0.99] lg:active:scale-100 transition-all duration-200 cursor-pointer animate-slide-up group md:col-span-2"
+                className="p-3 sm:p-4 border-border/50 hover:shadow-lg active:scale-[0.99] lg:active:scale-100 transition-all duration-200 cursor-pointer animate-slide-up group"
                 style={{ animationDelay: `${index * 75}ms` }}
                 onClick={() => navigate(`/artifact/${artifact.id}`)}
               >
