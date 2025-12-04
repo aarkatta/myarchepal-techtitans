@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Upload, Image as ImageIcon, MapPin, Calendar, Ruler, Tag, Loader2, Building2, DollarSign, Mic, MicOff, FileText } from "lucide-react";
+import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { AccountButton } from "@/components/AccountButton";
-import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -394,18 +394,17 @@ const CreateArtifact = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-md mx-auto">
-        <header className="bg-card p-4 border-b border-border sticky top-0 z-10">
-          <div className="flex items-center justify-between">
-            <PageHeader />
-            <AccountButton />
-          </div>
-        </header>
+    <ResponsiveLayout>
+      <header className="bg-card/95 backdrop-blur-lg px-4 py-4 sm:px-6 lg:px-8 border-b border-border sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <PageHeader showLogo={false} />
+          <AccountButton />
+        </div>
+      </header>
 
-        {/* Auth & Site Status */}
-        {!canCreate && (
-          <div className="p-4">
+      {/* Auth & Site Status */}
+      {!canCreate && (
+        <div className="p-4 lg:p-6">
             <Card>
               <div className="p-6 text-center">
                 <p className="text-muted-foreground mb-4">
@@ -447,14 +446,14 @@ const CreateArtifact = () => {
 
         {/* Form - Only show if user can create and has sites */}
         {canCreate && userSites.length > 0 && (
-        <div className="p-4 space-y-6">
+        <div className="p-4 lg:p-6 space-y-6 mx-auto max-w-7xl">
           <Card className="p-6 border-border">
             {imagePreview ? (
               <div className="relative">
                 <img
                   src={imagePreview}
                   alt="Artifact preview"
-                  className="w-full h-48 object-cover rounded-lg mb-4"
+                  className="max-w-full max-h-64 object-contain rounded-lg mb-4 mx-auto"
                 />
                 <Button
                   type="button"
@@ -952,10 +951,7 @@ const CreateArtifact = () => {
           </form>
         </div>
         )}
-
-        <BottomNav />
-      </div>
-    </div>
+    </ResponsiveLayout>
   );
 };
 

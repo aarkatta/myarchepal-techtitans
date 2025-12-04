@@ -1,4 +1,4 @@
-import { Home, Compass, Plus, Heart, Newspaper, Package, PlusSquare, Calendar, ShoppingBag, HandHeart, PersonStanding, Store, BookOpen, MessageSquare } from "lucide-react";
+import { Home, Compass, Plus, Heart, Newspaper, Package, PlusSquare, Calendar, Store, Menu, Users, User, Settings, Lock, Info, Mail, LogOut, ChevronRight, BookOpen, MessageSquare } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 import {
@@ -12,37 +12,50 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useArchaeologist } from "@/hooks/use-archaeologist";
 
-// Navigation items available to all users
-const navItems = [
-  { icon: Home, label: "Home", path: "/" },
-  { icon: Compass, label: "Sites", path: "/site-lists" },
-  { icon: Package, label: "Artifacts", path: "/artifacts" },
-  { icon: Newspaper, label: "Articles", path: "/articles" },
-  { icon: Calendar, label: "Events", path: "/events" },
-  { icon: MessageSquare, label: "Chat", path: "/chat", requiresAuth: true },
-  { icon: BookOpen, label: "Diary", path: "/digital-diary", requiresAuth: true },
-  { icon: HandHeart, label: "Support Us", path: "/support", hasSubmenu: true }
+// Explore items (shown in Explore submenu)
+const exploreItems = [
+  { icon: Compass, label: "Sites", description: "Browse archaeological sites", path: "/site-lists" },
+  { icon: Package, label: "Artifacts", description: "Explore discovered artifacts", path: "/artifacts" },
+  { icon: Newspaper, label: "Articles", description: "Read research articles", path: "/articles" },
+  { icon: Calendar, label: "Events", description: "Upcoming events", path: "/events" },
+  { icon: Users, label: "Collaborate", description: "Work with the team", path: "/team" },
+  { icon: MessageSquare, label: "Chat", description: "Team chat rooms", path: "/chat" },
 ];
 
-const createContentOptions = [
-  { icon: Newspaper, label: "Create Article", description: "Write a new article for the Articles page", path: "/create-article" },
-  { icon: Package, label: "Create Artifact", description: "Add a new artifact to the catalog", path: "/create-artifact" },
+// Create items (for archaeologists)
+const createItems = [
   { icon: PlusSquare, label: "Create Site", description: "Add a new archaeological site", path: "/new-site" },
-  { icon: Calendar, label: "Create Event", description: "Add a new event to the calendar", path: "/create-event" },
+  { icon: Package, label: "Create Artifact", description: "Add a new artifact to the catalog", path: "/create-artifact" },
+  { icon: Newspaper, label: "Create Article", description: "Write a new article", path: "/create-article" },
+  { icon: Calendar, label: "Create Event", description: "Add a new event", path: "/create-event" },
+  { icon: BookOpen, label: "Diary", description: "Write in your digital diary", path: "/digital-diary" },
 ];
 
-const supportOptions = [
-  { icon: Heart, label: "Donate", description: "Support our archaeological preservation work", path: "/donations" },
-  { icon: Store, label: "Gift Shop", description: "Browse and purchase archaeological items", path: "/gift-shop" },
+// Gift Shop items
+const giftShopItems = [
+  { icon: Heart, label: "Donate Funds", description: "Support archaeological preservation", path: "/donations" },
+  { icon: Store, label: "Buy Gifts", description: "Browse and purchase items", path: "/gift-shop" },
+];
+
+// Account items (for authenticated users)
+const accountItems = [
+  { icon: User, label: "Profile", description: "View your profile", path: "/account" },
+  { icon: Lock, label: "Change Password", description: "Update your password", path: "/edit-profile" },
+  { icon: Settings, label: "Settings", description: "App settings", path: "/account" },
+  { icon: Info, label: "About Us", description: "Learn about ArchePal", path: "/about-us" },
+  { icon: Mail, label: "Contact Us", description: "Get in touch", path: "/contact" },
+  { icon: MessageSquare, label: "Give Feedback", description: "Share your thoughts", path: "/feedback" },
 ];
 
 export const BottomNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
   const { isArchaeologist } = useArchaeologist();
   const [isCreateSheetOpen, setIsCreateSheetOpen] = useState(false);
-  const [isSupportSheetOpen, setIsSupportSheetOpen] = useState(false);
+  const [isGiftShopSheetOpen, setIsGiftShopSheetOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [activeSubmenu, setActiveSubmenu] = useState<'explore' | 'account' | null>(null);
 
   const handleCreateClick = () => {
     setIsCreateSheetOpen(true);
@@ -53,131 +66,304 @@ export const BottomNav = () => {
     navigate(path);
   };
 
-  const handleSupportClick = () => {
-    setIsSupportSheetOpen(true);
-  };
-
-  const handleSupportOptionClick = (path: string) => {
-    setIsSupportSheetOpen(false);
+  const handleGiftShopOptionClick = (path: string) => {
+    setIsGiftShopSheetOpen(false);
     navigate(path);
   };
 
-  const handleNavClick = (item: typeof navItems[0]) => {
-    if (item.hasSubmenu) {
-      handleSupportClick();
-    } else {
-      navigate(item.path);
+  const handleMenuItemClick = (path: string) => {
+    setIsMenuOpen(false);
+    setActiveSubmenu(null);
+    navigate(path);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      setIsMenuOpen(false);
+      navigate("/");
+    } catch (error) {
+      console.error("Error signing out:", error);
     }
   };
 
-  // Filter items based on auth status
-  const visibleNavItems = navItems.filter(item => !item.requiresAuth || isAuthenticated);
-
-  const leftItems = visibleNavItems.slice(0, 3);
-  const rightItems = visibleNavItems.slice(3);
+  // Check if current path matches explore items
+  const isExploreActive = exploreItems.some(item => location.pathname === item.path);
 
   return (
     <>
-      <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-border px-4 py-3 shadow-lg transition-all duration-300 z-50">
-        <div className="flex items-center justify-around max-w-md mx-auto transition-all duration-300">
-          {leftItems.map((item) => (
-            <button
-              key={item.label}
-              onClick={() => handleNavClick(item)}
-              className={`flex flex-col items-center gap-1 transition-all duration-300 ${
-                location.pathname === item.path
-                  ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <item.icon className="w-5 h-5" />
-              <span className="text-xs font-medium">{item.label}</span>
-            </button>
-          ))}
+      {/* Bottom Navigation Bar - Hidden on desktop (lg+) */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-lg border-t border-border shadow-lg z-50 safe-bottom">
+        <div className="flex items-center justify-around max-w-lg mx-auto px-2 py-2 relative">
 
-          {/* Show create button only for archaeologists */}
+          {/* Home */}
+          <button
+            onClick={() => navigate("/")}
+            className={`flex flex-col items-center gap-0.5 p-3 min-w-[4rem] rounded-xl transition-all duration-200 active:scale-95 ${
+              location.pathname === "/"
+                ? "text-primary bg-primary/10"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            }`}
+          >
+            <Home className="w-6 h-6" />
+            <span className="text-micro font-medium leading-snug font-sans tracking-wide">Home</span>
+          </button>
+
+          {/* Explore */}
+          <button
+            onClick={() => {
+              setActiveSubmenu('explore');
+              setIsMenuOpen(true);
+            }}
+            className={`flex flex-col items-center gap-0.5 p-3 min-w-[4rem] rounded-xl transition-all duration-200 active:scale-95 ${
+              isExploreActive
+                ? "text-primary bg-primary/10"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            }`}
+          >
+            <Compass className="w-6 h-6" />
+            <span className="text-micro font-medium leading-snug font-sans tracking-wide">Explore</span>
+          </button>
+
+          {/* Center Create Button - Only for archaeologists */}
           {isAuthenticated && isArchaeologist ? (
             <button
               onClick={handleCreateClick}
-              className="bg-primary text-primary-foreground p-3 rounded-full -mt-6 shadow-lg hover:bg-primary/90 transition-all duration-300"
+              className="flex items-center justify-center w-14 h-14 -mt-7 bg-primary text-primary-foreground rounded-full shadow-lg hover:bg-primary/90 active:scale-95 transition-all duration-200 ring-4 ring-background"
+              aria-label="Create new content"
             >
-              <Plus className="w-6 h-6" />
+              <Plus className="w-7 h-7" />
             </button>
           ) : (
-            <div className="p-3 rounded-full -mt-6 bg-muted">
-              <div className="w-6 h-6" />
-            </div>
+            // Placeholder for non-archaeologists to maintain spacing
+            <div className="w-14 h-14 -mt-7" />
           )}
 
-          {rightItems.map((item) => (
-            <button
-              key={item.label}
-              onClick={() => handleNavClick(item)}
-              className={`flex flex-col items-center gap-1 transition-all duration-300 ${
-                location.pathname === item.path || (item.hasSubmenu && (location.pathname === '/donations' || location.pathname === '/gift-shop'))
-                  ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <item.icon className="w-5 h-5" />
-              <span className="text-xs font-medium">{item.label}</span>
-            </button>
-          ))}
+          {/* Diary */}
+          <button
+            onClick={() => navigate("/digital-diary")}
+            className={`flex flex-col items-center gap-0.5 p-3 min-w-[4rem] rounded-xl transition-all duration-200 active:scale-95 ${
+              location.pathname === "/digital-diary"
+                ? "text-primary bg-primary/10"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            }`}
+          >
+            <BookOpen className="w-6 h-6" />
+            <span className="text-micro font-medium leading-snug font-sans tracking-wide">Diary</span>
+          </button>
+
+          {/* Account / More Menu */}
+          <button
+            onClick={() => {
+              setActiveSubmenu('account');
+              setIsMenuOpen(true);
+            }}
+            className={`flex flex-col items-center gap-0.5 p-3 min-w-[4rem] rounded-xl transition-all duration-200 active:scale-95 ${
+              location.pathname === "/account"
+                ? "text-primary bg-primary/10"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            }`}
+          >
+            {isAuthenticated ? <User className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            <span className="text-micro font-medium leading-snug font-sans tracking-wide">
+              {isAuthenticated ? "Account" : "More"}
+            </span>
+          </button>
         </div>
       </nav>
 
+      {/* Menu Sheet (Explore or Account) */}
+      <Sheet open={isMenuOpen} onOpenChange={(open) => {
+        setIsMenuOpen(open);
+        if (!open) setActiveSubmenu(null);
+      }}>
+        <SheetContent side="bottom" className="max-w-lg mx-auto rounded-t-3xl safe-bottom">
+          <SheetHeader className="text-left">
+            <SheetTitle className="text-h3 font-heading font-bold leading-tight">
+              {activeSubmenu === 'explore' ? 'Explore' : isAuthenticated ? 'Account' : 'Menu'}
+            </SheetTitle>
+            <SheetDescription className="text-body-sm font-sans text-muted-foreground leading-normal">
+              {activeSubmenu === 'explore'
+                ? 'Discover archaeological content'
+                : isAuthenticated
+                  ? 'Manage your account settings'
+                  : 'Navigate to more sections'
+              }
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-6 space-y-1 pb-4">
+            {activeSubmenu === 'explore' ? (
+              // Explore submenu
+              exploreItems.map((item) => (
+                <Button
+                  key={item.path}
+                  variant="ghost"
+                  className="w-full h-auto py-3 px-4 flex items-center gap-4 hover:bg-muted/80 active:scale-[0.98] rounded-xl transition-all justify-start"
+                  onClick={() => handleMenuItemClick(item.path)}
+                >
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                    location.pathname === item.path ? "bg-primary/20" : "bg-muted"
+                  }`}>
+                    <item.icon className={`w-5 h-5 ${
+                      location.pathname === item.path ? "text-primary" : "text-muted-foreground"
+                    }`} />
+                  </div>
+                  <div className="text-left flex-1">
+                    <div className="text-body font-semibold text-foreground font-sans leading-snug">{item.label}</div>
+                    <div className="text-caption text-muted-foreground font-sans leading-snug">{item.description}</div>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </Button>
+              ))
+            ) : isAuthenticated ? (
+              // Account submenu
+              <>
+                {accountItems.map((item) => (
+                  <Button
+                    key={item.label}
+                    variant="ghost"
+                    className="w-full h-auto py-3 px-4 flex items-center gap-4 hover:bg-muted/80 active:scale-[0.98] rounded-xl transition-all justify-start"
+                    onClick={() => handleMenuItemClick(item.path)}
+                  >
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                      location.pathname === item.path && item.label === "Profile" ? "bg-primary/20" : "bg-muted"
+                    }`}>
+                      <item.icon className={`w-5 h-5 ${
+                        location.pathname === item.path && item.label === "Profile" ? "text-primary" : "text-muted-foreground"
+                      }`} />
+                    </div>
+                    <div className="text-left flex-1">
+                      <div className="text-body font-semibold text-foreground font-sans leading-snug">{item.label}</div>
+                      <div className="text-caption text-muted-foreground font-sans leading-snug">{item.description}</div>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                  </Button>
+                ))}
+                {/* Logout Button */}
+                <Button
+                  variant="ghost"
+                  className="w-full h-auto py-3 px-4 flex items-center gap-4 hover:bg-destructive/10 active:scale-[0.98] rounded-xl transition-all justify-start mt-4 border-t border-border pt-4"
+                  onClick={handleLogout}
+                >
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-destructive/10">
+                    <LogOut className="w-5 h-5 text-destructive" />
+                  </div>
+                  <div className="text-left flex-1">
+                    <div className="text-body font-semibold text-destructive font-sans leading-snug">Logout</div>
+                    <div className="text-caption text-muted-foreground font-sans leading-snug">Sign out of your account</div>
+                  </div>
+                </Button>
+              </>
+            ) : (
+              // Non-authenticated menu
+              <>
+                <Button
+                  variant="ghost"
+                  className="w-full h-auto py-3 px-4 flex items-center gap-4 hover:bg-muted/80 active:scale-[0.98] rounded-xl transition-all justify-start"
+                  onClick={() => handleMenuItemClick("/about-us")}
+                >
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-muted">
+                    <Info className="w-5 h-5 text-muted-foreground" />
+                  </div>
+                  <div className="text-left flex-1">
+                    <div className="text-body font-semibold text-foreground font-sans leading-snug">About Us</div>
+                    <div className="text-caption text-muted-foreground font-sans leading-snug">Learn about ArchePal</div>
+                  </div>
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="w-full h-auto py-3 px-4 flex items-center gap-4 hover:bg-muted/80 active:scale-[0.98] rounded-xl transition-all justify-start"
+                  onClick={() => handleMenuItemClick("/contact")}
+                >
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-muted">
+                    <Mail className="w-5 h-5 text-muted-foreground" />
+                  </div>
+                  <div className="text-left flex-1">
+                    <div className="text-body font-semibold text-foreground font-sans leading-snug">Contact Us</div>
+                    <div className="text-caption text-muted-foreground font-sans leading-snug">Get in touch with us</div>
+                  </div>
+                </Button>
+                <div className="pt-4 mt-4 border-t border-border space-y-2">
+                  <Button
+                    className="w-full h-11"
+                    onClick={() => handleMenuItemClick("/authentication/sign-in")}
+                  >
+                    Sign In
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full h-10"
+                    onClick={() => handleMenuItemClick("/authentication/sign-up")}
+                  >
+                    Create Account
+                  </Button>
+                </div>
+              </>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Create Content Sheet */}
       <Sheet open={isCreateSheetOpen} onOpenChange={setIsCreateSheetOpen}>
-        <SheetContent side="bottom" className="max-w-md mx-auto">
-          <SheetHeader>
-            <SheetTitle>Create Content</SheetTitle>
-            <SheetDescription>
+        <SheetContent side="bottom" className="max-w-lg mx-auto rounded-t-3xl safe-bottom">
+          <SheetHeader className="text-left">
+            <SheetTitle className="text-h3 font-heading font-bold leading-tight">Create</SheetTitle>
+            <SheetDescription className="text-body-sm font-sans text-muted-foreground leading-normal">
               Choose what you'd like to create
             </SheetDescription>
           </SheetHeader>
-          <div className="mt-6 space-y-3">
-            {createContentOptions.map((option) => (
+          <div className="mt-6 space-y-1 pb-4">
+            {createItems.map((item) => (
               <Button
-                key={option.label}
-                variant="outline"
-                className="w-full h-auto py-4 flex items-start gap-3 hover:bg-accent hover:text-accent-foreground"
-                onClick={() => handleContentOptionClick(option.path)}
+                key={item.path}
+                variant="ghost"
+                className="w-full h-auto py-3 px-4 flex items-center gap-4 hover:bg-muted/80 active:scale-[0.98] rounded-xl transition-all justify-start"
+                onClick={() => handleContentOptionClick(item.path)}
               >
-                <option.icon className="w-5 h-5 mt-0.5 flex-shrink-0" />
-                <div className="text-left flex-1">
-                  <div className="font-medium">{option.label}</div>
-                  <div className="text-xs opacity-70 font-normal mt-1">
-                    {option.description}
-                  </div>
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <item.icon className="w-5 h-5 text-primary" />
                 </div>
+                <div className="text-left flex-1">
+                  <div className="text-body font-semibold text-foreground font-sans leading-snug">{item.label}</div>
+                  <div className="text-caption text-muted-foreground font-sans leading-snug">{item.description}</div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
               </Button>
             ))}
           </div>
         </SheetContent>
       </Sheet>
 
-      <Sheet open={isSupportSheetOpen} onOpenChange={setIsSupportSheetOpen}>
-        <SheetContent side="bottom" className="max-w-md mx-auto">
-          <SheetHeader>
-            <SheetTitle>Support Us</SheetTitle>
-            <SheetDescription>
-              Help preserve our archaeological heritage
+      {/* Gift Shop Sheet */}
+      <Sheet open={isGiftShopSheetOpen} onOpenChange={setIsGiftShopSheetOpen}>
+        <SheetContent side="bottom" className="max-w-lg mx-auto rounded-t-3xl safe-bottom">
+          <SheetHeader className="text-left">
+            <SheetTitle className="text-h3 font-heading font-bold leading-tight">Gift Shop</SheetTitle>
+            <SheetDescription className="text-body-sm font-sans text-muted-foreground leading-normal">
+              Support archaeology through donations and gifts
             </SheetDescription>
           </SheetHeader>
-          <div className="mt-6 space-y-3">
-            {supportOptions.map((option) => (
+          <div className="mt-6 space-y-1 pb-4">
+            {giftShopItems.map((item) => (
               <Button
-                key={option.label}
-                variant="outline"
-                className="w-full h-auto py-4 flex items-start gap-3 hover:bg-accent hover:text-accent-foreground"
-                onClick={() => handleSupportOptionClick(option.path)}
+                key={item.path}
+                variant="ghost"
+                className="w-full h-auto py-3 px-4 flex items-center gap-4 hover:bg-muted/80 active:scale-[0.98] rounded-xl transition-all justify-start"
+                onClick={() => handleGiftShopOptionClick(item.path)}
               >
-                <option.icon className="w-5 h-5 mt-0.5 flex-shrink-0" />
-                <div className="text-left flex-1">
-                  <div className="font-medium">{option.label}</div>
-                  <div className="text-xs opacity-70 font-normal mt-1">
-                    {option.description}
-                  </div>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                  location.pathname === item.path ? "bg-primary/20" : "bg-primary/10"
+                }`}>
+                  <item.icon className={`w-5 h-5 ${
+                    location.pathname === item.path ? "text-primary" : "text-primary"
+                  }`} />
                 </div>
+                <div className="text-left flex-1">
+                  <div className="text-body font-semibold text-foreground font-sans leading-snug">{item.label}</div>
+                  <div className="text-caption text-muted-foreground font-sans leading-snug">{item.description}</div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
               </Button>
             ))}
           </div>

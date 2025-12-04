@@ -15,7 +15,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Mail, Building2, Award, Shield, User, Loader2, Camera } from "lucide-react";
-import { BottomNav } from "@/components/BottomNav";
+import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -220,23 +220,22 @@ const EditProfile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-md mx-auto">
-        <header className="bg-card p-4 border-b border-border sticky top-0 z-10">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate("/account")}
-              className="hover:bg-muted"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <h1 className="text-xl font-semibold text-foreground">Edit Profile</h1>
-          </div>
-        </header>
+    <ResponsiveLayout>
+      <header className="bg-card p-4 border-b border-border sticky top-0 z-10 lg:static">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate("/account")}
+            className="hover:bg-muted lg:hidden"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <h1 className="text-xl font-semibold text-foreground">Edit Profile</h1>
+        </div>
+      </header>
 
-        <div className="p-4 space-y-6">
+      <div className="p-4 lg:p-6 space-y-6 mx-auto max-w-7xl">
           {loading ? (
             <Card className="p-8 border-border">
               <div className="flex items-center justify-center">
@@ -383,11 +382,8 @@ const EditProfile = () => {
               </form>
             </>
           )}
-        </div>
-
-        <BottomNav />
       </div>
-    </div>
+    </ResponsiveLayout>
   );
 };
 

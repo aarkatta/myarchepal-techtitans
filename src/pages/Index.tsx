@@ -4,7 +4,7 @@ import { QuickActions } from "@/components/QuickActions";
 import { ActiveProject } from "@/components/ActiveProject";
 import { RecentFinds } from "@/components/RecentFinds";
 import { SiteConditions } from "@/components/SiteConditions";
-import { BottomNav } from "@/components/BottomNav";
+import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { useAuth } from "@/hooks/use-auth";
 
 // Default coordinates for Raleigh, North Carolina
@@ -29,11 +29,11 @@ const Index = () => {
               longitude: position.coords.longitude
             });
             setLocationLoading(false);
-            console.log('✅ User location obtained:', position.coords.latitude, position.coords.longitude);
+            console.log('User location obtained:', position.coords.latitude, position.coords.longitude);
           },
           (error) => {
-            console.warn('⚠️ Location permission denied or unavailable:', error.message);
-            console.log('🏛️ Using default location: Raleigh, NC');
+            console.warn('Location permission denied or unavailable:', error.message);
+            console.log('Using default location: Raleigh, NC');
             setUserLocation(DEFAULT_LOCATION);
             setLocationLoading(false);
           },
@@ -44,8 +44,8 @@ const Index = () => {
           }
         );
       } else {
-        console.warn('⚠️ Geolocation is not supported by this browser');
-        console.log('🏛️ Using default location: Raleigh, NC');
+        console.warn('Geolocation is not supported by this browser');
+        console.log('Using default location: Raleigh, NC');
         setUserLocation(DEFAULT_LOCATION);
         setLocationLoading(false);
       }
@@ -55,24 +55,44 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-md mx-auto bg-background min-h-screen">
-        <AppHeader />
-        <QuickActions />
+    <ResponsiveLayout>
+      <AppHeader />
 
-        {/* Show Site Conditions for non-authenticated users */}
-        {!isAuthenticated && !locationLoading && userLocation && (
-          <SiteConditions
-            latitude={userLocation.latitude}
-            longitude={userLocation.longitude}
-          />
-        )}
+      <main className="animate-fade-in">
+        {/* Two-column layout on desktop */}
+        <div className="lg:flex lg:gap-8 px-4 mx-auto max-w-7xl lg:py-6">
+          {/* Main content column */}
+          <div className="lg:flex-1">
+            <QuickActions />
+            <ActiveProject />
+            <RecentFinds />
+          </div>
 
-        <ActiveProject />
-        <RecentFinds />
-        <BottomNav />
-      </div>
-    </div>
+          {/* Sidebar column - only on desktop */}
+          <div className="hidden lg:block lg:w-80 xl:w-96 lg:flex-shrink-0">
+            {/* Show Site Conditions in sidebar on desktop */}
+            {!isAuthenticated && !locationLoading && userLocation && (
+              <div className="sticky top-24">
+                <SiteConditions
+                  latitude={userLocation.latitude}
+                  longitude={userLocation.longitude}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Show Site Conditions inline on mobile for non-authenticated users */}
+        <div className="lg:hidden">
+          {!isAuthenticated && !locationLoading && userLocation && (
+            <SiteConditions
+              latitude={userLocation.latitude}
+              longitude={userLocation.longitude}
+            />
+          )}
+        </div>
+      </main>
+    </ResponsiveLayout>
   );
 };
 

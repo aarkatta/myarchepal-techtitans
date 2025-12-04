@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Calendar, Clock, MapPin, Users, Loader2, DollarSign, Tag } from "lucide-react";
+import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { AccountButton } from "@/components/AccountButton";
-import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -109,18 +109,17 @@ const CreateEvent = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-md mx-auto">
-        <header className="bg-card p-4 border-b border-border sticky top-0 z-10">
-          <div className="flex items-center justify-between">
-            <PageHeader />
-            <AccountButton />
-          </div>
-        </header>
+    <ResponsiveLayout>
+      <header className="bg-card p-4 border-b border-border sticky top-0 z-10 lg:static">
+        <div className="flex items-center justify-between">
+          <PageHeader />
+          <AccountButton />
+        </div>
+      </header>
 
-        {/* Auth & Access Check */}
-        {!canCreate && (
-          <div className="p-4">
+      {/* Auth & Access Check */}
+      {!canCreate && (
+        <div className="p-4 lg:p-6">
             <Card>
               <div className="p-6 text-center">
                 <p className="text-muted-foreground mb-4">
@@ -143,7 +142,7 @@ const CreateEvent = () => {
 
         {/* Form - Only show if user can create */}
         {canCreate && (
-          <div className="p-4 space-y-6">
+          <div className="p-4 lg:p-6 space-y-6 mx-auto max-w-7xl">
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Event Title */}
               <div className="space-y-2">
@@ -347,10 +346,7 @@ const CreateEvent = () => {
             </form>
           </div>
         )}
-
-        <BottomNav />
-      </div>
-    </div>
+    </ResponsiveLayout>
   );
 };
 

@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Eye, ThumbsUp, MessageSquare, Clock, Share2, Edit, Loader2, User } from "lucide-react";
-import { BottomNav } from "@/components/BottomNav";
+import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { PageHeader } from "@/components/PageHeader";
+import { AccountButton } from "@/components/AccountButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -120,18 +121,18 @@ const ArticleDetails = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-md mx-auto">
-        {/* Header */}
-        <header className="bg-card p-4 border-b border-border sticky top-0 z-10">
+    <ResponsiveLayout>
+      {/* Header */}
+      <header className="bg-card/95 backdrop-blur-lg px-4 py-4 sm:px-6 lg:px-8 border-b border-border sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between">
-            <PageHeader />
+            <PageHeader showLogo={false} />
             <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={handleShare}
-                className="hover:bg-muted"
+                className="hover:bg-muted h-10 w-10"
               >
                 <Share2 className="w-4 h-4" />
               </Button>
@@ -140,25 +141,29 @@ const ArticleDetails = () => {
                   variant="ghost"
                   size="icon"
                   onClick={() => navigate(`/edit-article/${article.id}`)}
-                  className="hover:bg-muted"
+                  className="hover:bg-muted h-10 w-10"
                 >
                   <Edit className="w-4 h-4" />
                 </Button>
               )}
+              <AccountButton />
             </div>
           </div>
-        </header>
+        </div>
+      </header>
 
-        <div className="p-4 space-y-4">
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto">
+        <div className="p-4 sm:p-6 lg:p-8 space-y-4 lg:space-y-6">
           {/* Cover Image */}
           {article.image && (
             <Card>
               <CardContent className="pt-6">
-                <div className="w-full h-64 relative overflow-hidden rounded-lg">
+                <div className="w-full flex justify-center rounded-lg bg-muted/30">
                   <img
                     src={article.image}
                     alt={article.title}
-                    className="w-full h-full object-cover"
+                    className="max-w-full max-h-80 object-contain rounded-lg"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       target.style.display = 'none';
@@ -321,10 +326,8 @@ const ArticleDetails = () => {
             </CardContent>
           </Card>
         </div>
-
-        <BottomNav />
       </div>
-    </div>
+    </ResponsiveLayout>
   );
 };
 

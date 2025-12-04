@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MapPin, Calendar, Users, FileText, Search, Loader2, Plus, Star } from "lucide-react";
-import { BottomNav } from "@/components/BottomNav";
+import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { AccountButton } from "@/components/AccountButton";
 import { SiteConditions } from "@/components/SiteConditions";
@@ -27,7 +27,6 @@ const SiteLists = () => {
   const [filteredSites, setFilteredSites] = useState<Site[]>([]);
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
   const [settingActiveProject, setSettingActiveProject] = useState(false);
-  const [clearingAllActive, setClearingAllActive] = useState(false);
 
   // Fetch active project ID for archaeologist
   useEffect(() => {
@@ -127,37 +126,6 @@ const SiteLists = () => {
     }
   };
 
-  const handleClearAllActiveProjects = async () => {
-    if (!user) {
-      toast({
-        title: "Access denied",
-        description: "You must be logged in",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      setClearingAllActive(true);
-      await ArchaeologistService.clearAllActiveProjects();
-      setActiveProjectId(null);
-
-      toast({
-        title: "Success",
-        description: "All active project assignments have been cleared. Archaeologists can now choose their active sites."
-      });
-    } catch (error) {
-      console.error("Error clearing all active projects:", error);
-      toast({
-        title: "Error",
-        description: "Failed to clear active projects",
-        variant: "destructive"
-      });
-    } finally {
-      setClearingAllActive(false);
-    }
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -183,179 +151,181 @@ const SiteLists = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-md mx-auto">
-        <header className="bg-card p-4 border-b border-border sticky top-0 z-10">
-          <div className="flex items-center justify-between mb-4">
-            <PageHeader />
+    <ResponsiveLayout>
+      <header className="bg-card/95 backdrop-blur-lg px-4 py-4 sm:px-6 lg:px-8 border-b border-border sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <PageHeader showLogo={false} />
             <div className="flex items-center gap-2">
               {user && (
                 <Button
-                  variant="outline"
+                  variant="default"
                   size="sm"
                   onClick={() => navigate("/new-site")}
-                  className="hover:bg-muted hover:text-primary"
+                  className="hidden lg:flex gap-1.5 text-sm h-9 px-4 shadow-sm hover:shadow-md transition-all"
                 >
-                  <Plus className="w-4 h-4 mr-2" />
+                  <Plus className="w-4 h-4" />
                   Create Site
                 </Button>
               )}
               <AccountButton />
             </div>
           </div>
-          
-          <div className="relative">
+
+          <div className="relative mb-3 sm:mb-4">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               placeholder="Search sites..."
-              className="pl-10 border-border"
+              className="pl-10 h-11 lg:h-12 bg-muted/50 border-0 focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
 
-          <div className="grid grid-cols-3 gap-3 mt-4">
-            <Card className="p-3 border-border text-center">
-              <p className="text-2xl font-bold text-primary">{sites.length}</p>
-              <p className="text-xs text-muted-foreground">Total Sites</p>
+          <div className="grid grid-cols-3 gap-2 sm:gap-3 lg:gap-4">
+            <Card className="p-2.5 sm:p-3 lg:p-4 border-border/50 text-center bg-gradient-to-br from-primary/5 to-primary/10 hover:shadow-md transition-shadow">
+              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-primary">{sites.length}</p>
+              <p className="text-[10px] sm:text-xs lg:text-sm text-muted-foreground font-medium">Total Sites</p>
             </Card>
-            <Card className="p-3 border-border text-center">
-              <p className="text-2xl font-bold text-success">
+            <Card className="p-2.5 sm:p-3 lg:p-4 border-border/50 text-center bg-gradient-to-br from-green-500/5 to-green-500/10 hover:shadow-md transition-shadow">
+              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-green-600">
                 {sites.filter(s => s.status === 'active').length}
               </p>
-              <p className="text-xs text-muted-foreground">Active</p>
+              <p className="text-[10px] sm:text-xs lg:text-sm text-muted-foreground font-medium">Active</p>
             </Card>
-            <Card className="p-3 border-border text-center">
-              <p className="text-2xl font-bold text-foreground">
+            <Card className="p-2.5 sm:p-3 lg:p-4 border-border/50 text-center bg-gradient-to-br from-orange-500/5 to-orange-500/10 hover:shadow-md transition-shadow">
+              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-orange-600">
                 {sites.filter(s => s.artifacts?.length).reduce((sum, s) => sum + (s.artifacts?.length || 0), 0)}
               </p>
-              <p className="text-xs text-muted-foreground">Artifacts</p>
+              <p className="text-[10px] sm:text-xs lg:text-sm text-muted-foreground font-medium">Artifacts</p>
             </Card>
           </div>
-        </header>
-
-        {/* Site Conditions for Active Project - Only for Archaeologists */}
-        {user && isArchaeologist && activeProjectId && (() => {
-          const activeProjectSite = sites.find(site => site.id === activeProjectId);
-          if (activeProjectSite?.location?.latitude && activeProjectSite?.location?.longitude) {
-            return (
-              <SiteConditions
-                latitude={activeProjectSite.location.latitude}
-                longitude={activeProjectSite.location.longitude}
-              />
-            );
-          }
-          return null;
-        })()}
-
-        <div className="p-4 space-y-3">
-          {filteredSites.length === 0 ? (
-            <Card className="p-8 text-center border-border">
-              <p className="text-muted-foreground">
-                {searchQuery ? "No sites found matching your search." : "No sites available. Create your first site!"}
-              </p>
-            </Card>
-          ) : (
-            filteredSites.map((site) => {
-              const isActiveProject = activeProjectId === site.id;
-              return (
-                <Card
-                  key={site.id}
-                  className={`p-4 border-border hover:shadow-md transition-all cursor-pointer ${
-                    isActiveProject ? 'ring-2 ring-primary/50 bg-primary/5' : ''
-                  }`}
-                  onClick={() => handleSiteClick(site.id)}
-                >
-                  <div className="flex gap-3">
-                    <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
-                      {site.images && site.images.length > 0 ? (
-                        <img
-                          src={site.images[0]}
-                          alt={site.name}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.onerror = null;
-                            target.style.display = 'none';
-                            const parent = target.parentElement;
-                            if (parent) {
-                              parent.innerHTML = '<span class="text-3xl">🏛️</span>';
-                            }
-                          }}
-                        />
-                      ) : (
-                        <span className="text-3xl">🏛️</span>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <h3 className="font-semibold text-foreground line-clamp-1 flex items-center gap-2">
-                          {site.name}
-                          {isActiveProject && (
-                            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-                              Active Project
-                            </Badge>
-                          )}
-                        </h3>
-                        {isArchaeologist && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 shrink-0"
-                            onClick={(e) => handleToggleActiveProject(e, site.id!)}
-                            disabled={settingActiveProject}
-                          >
-                            <Star
-                              className={`w-4 h-4 transition-colors ${
-                                isActiveProject
-                                  ? 'fill-yellow-500 text-yellow-500'
-                                  : 'text-muted-foreground hover:text-yellow-500'
-                              }`}
-                            />
-                          </Button>
-                        )}
-                      </div>
-
-                    <div className="space-y-1 mb-3">
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <MapPin className="w-3 h-3" />
-                        <span>{getLocationDisplay(site)}</span>
-                      </div>
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <Calendar className="w-3 h-3" />
-                        <span>{formatDate(site.updatedAt || site.createdAt)}</span>
-                      </div>
-                    </div>
-
-                    <p className="text-xs text-muted-foreground line-clamp-2 mb-3">
-                      {site.description || "No description available"}
-                    </p>
-
-                    <div className="flex items-center justify-between pt-3 border-t border-border">
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <FileText className="w-3 h-3" />
-                          <span>{site.artifacts?.length || 0} artifacts</span>
-                        </div>
-                        {site.period && (
-                          <div className="flex items-center gap-1">
-                            <Users className="w-3 h-3" />
-                            <span>{site.period}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-              );
-            })
-          )}
         </div>
+      </header>
 
-        <BottomNav />
+      {/* Main content */}
+      <div className="max-w-7xl mx-auto">
+          <div className="p-3 sm:p-4 lg:p-6 space-y-3 lg:space-y-4">
+            {filteredSites.length === 0 ? (
+              <Card className="p-8 sm:p-12 text-center border-border/50 animate-fade-in">
+                <div className="text-4xl mb-3">🏛️</div>
+                <p className="text-muted-foreground text-sm sm:text-base">
+                  {searchQuery ? "No sites found matching your search." : "No sites available. Create your first site!"}
+                </p>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {filteredSites.map((site, index) => {
+                  const isActiveProject = activeProjectId === site.id;
+                  return (
+                    <Card
+                      key={site.id}
+                      className={`p-3 sm:p-4 border-border/50 hover:shadow-lg active:scale-[0.99] lg:active:scale-100 transition-all duration-200 cursor-pointer animate-slide-up group ${
+                        isActiveProject ? 'ring-2 ring-primary/50 bg-primary/5 md:col-span-2' : ''
+                      }`}
+                      style={{ animationDelay: `${index * 50}ms` }}
+                      onClick={() => handleSiteClick(site.id)}
+                    >
+                      <div className="flex gap-3">
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 bg-muted rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden group-hover:scale-105 transition-transform">
+                          {site.images && site.images.length > 0 ? (
+                            <img
+                              src={site.images[0]}
+                              alt={site.name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.onerror = null;
+                                target.style.display = 'none';
+                                const parent = target.parentElement;
+                                if (parent) {
+                                  parent.innerHTML = '<span class="text-2xl sm:text-3xl">🏛️</span>';
+                                }
+                              }}
+                            />
+                          ) : (
+                            <span className="text-2xl sm:text-3xl">🏛️</span>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2 mb-1.5 sm:mb-2">
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-semibold text-sm sm:text-base lg:text-lg text-foreground line-clamp-1 group-hover:text-primary transition-colors">
+                                {site.name}
+                              </h3>
+                              {isActiveProject && (
+                                <Badge variant="outline" className="mt-1 bg-primary/10 text-primary border-primary/20 text-[10px] sm:text-xs">
+                                  Active Project
+                                </Badge>
+                              )}
+                            </div>
+                            {isArchaeologist && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 lg:h-10 lg:w-10 shrink-0 rounded-full hover:bg-yellow-500/10"
+                                onClick={(e) => handleToggleActiveProject(e, site.id!)}
+                                disabled={settingActiveProject}
+                              >
+                                <Star
+                                  className={`w-4 h-4 lg:w-5 lg:h-5 transition-colors ${
+                                    isActiveProject
+                                      ? 'fill-yellow-500 text-yellow-500'
+                                      : 'text-muted-foreground hover:text-yellow-500'
+                                  }`}
+                                />
+                              </Button>
+                            )}
+                          </div>
+
+                          <div className="space-y-0.5 sm:space-y-1 mb-2 sm:mb-3">
+                            <div className="flex items-center gap-1.5 text-[11px] sm:text-xs lg:text-sm text-muted-foreground">
+                              <MapPin className="w-3 h-3 lg:w-4 lg:h-4 flex-shrink-0" />
+                              <span className="truncate">{getLocationDisplay(site)}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 text-[11px] sm:text-xs lg:text-sm text-muted-foreground">
+                              <Calendar className="w-3 h-3 lg:w-4 lg:h-4 flex-shrink-0" />
+                              <span>{formatDate(site.updatedAt || site.createdAt)}</span>
+                            </div>
+                          </div>
+
+                          <p className="text-[11px] sm:text-xs lg:text-sm text-muted-foreground line-clamp-2 mb-2 sm:mb-3">
+                            {site.description || "No description available"}
+                          </p>
+
+                          <div className="flex items-center justify-between pt-2 sm:pt-3 border-t border-border/50">
+                            <div className="flex items-center gap-3 sm:gap-4 text-[10px] sm:text-xs lg:text-sm text-muted-foreground">
+                              <div className="flex items-center gap-1">
+                                <FileText className="w-3 h-3 lg:w-4 lg:h-4" />
+                                <span>{site.artifacts?.length || 0} artifacts</span>
+                              </div>
+                              {site.period && (
+                                <div className="flex items-center gap-1">
+                                  <Users className="w-3 h-3 lg:w-4 lg:h-4" />
+                                  <span>{site.period}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      {/* Site Conditions - Only for Active Project */}
+                      {isActiveProject && user && isArchaeologist && site.location?.latitude && site.location?.longitude && (
+                        <div className="mt-3 pt-3 border-t border-border/50" onClick={(e) => e.stopPropagation()}>
+                          <SiteConditions
+                            latitude={site.location.latitude}
+                            longitude={site.location.longitude}
+                          />
+                        </div>
+                      )}
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+          </div>
       </div>
-    </div>
+    </ResponsiveLayout>
   );
 };
 

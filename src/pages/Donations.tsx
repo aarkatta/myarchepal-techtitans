@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Heart, CreditCard, DollarSign, Building2, Mail } from "lucide-react";
+import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { PageHeader } from "@/components/PageHeader";
-import { BottomNav } from "@/components/BottomNav";
+import { AccountButton } from "@/components/AccountButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -156,14 +157,16 @@ const Donations = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20">
-      <div className="max-w-md mx-auto bg-background min-h-screen">
-        <header className="bg-card p-4 border-b border-border sticky top-0 z-10">
-          <PageHeader />
-        </header>
+    <ResponsiveLayout>
+      <header className="bg-card/95 backdrop-blur-lg px-4 py-4 sm:px-6 lg:px-8 border-b border-border sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <PageHeader mobileLogoOnly />
+          <AccountButton />
+        </div>
+      </header>
 
-        {/* Thank You Message */}
-        {showThankYou && (
+      {/* Thank You Message */}
+      {showThankYou && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <Card className="w-full max-w-sm mx-auto">
               <CardContent className="pt-6 text-center space-y-4">
@@ -189,21 +192,21 @@ const Donations = () => {
           </div>
         )}
 
-        {/* Header Section */}
-        <div className="p-6 space-y-4">
-          <div className="text-center space-y-2">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
-              <Heart className="w-8 h-8 text-primary" />
-            </div>
-            <h1 className="text-3xl font-bold">Support Our Mission</h1>
-            <p className="text-muted-foreground">
-              Help us preserve and discover archaeological treasures. Your donation makes a difference.
-            </p>
+      {/* Header Section */}
+      <div className="p-4 lg:p-6 space-y-4 mx-auto max-w-7xl">
+        <div className="text-center space-y-2">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
+            <Heart className="w-8 h-8 text-primary" />
           </div>
+          <h1 className="text-2xl md:text-3xl font-bold">Support Our Mission</h1>
+          <p className="text-muted-foreground">
+            Help us preserve and discover archaeological treasures. Your donation makes a difference.
+          </p>
         </div>
+      </div>
 
-        {/* Donation Form */}
-        <div className="px-6 pb-6 space-y-6">
+      {/* Donation Form */}
+      <div className="px-4 lg:px-6 pb-6 space-y-6 mx-auto max-w-7xl">
           <Card>
             <CardHeader>
               <CardTitle>Make a Donation</CardTitle>
@@ -427,11 +430,8 @@ const Donations = () => {
               </div>
             </CardContent>
           </Card>
-        </div>
-
-        <BottomNav />
       </div>
-    </div>
+    </ResponsiveLayout>
   );
 };
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { BookOpen, Clock, Eye, ThumbsUp, MessageSquare, Bookmark, TrendingUp, Filter, Loader2, FileText, Plus } from "lucide-react";
-import { BottomNav } from "@/components/BottomNav";
+import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { AccountButton } from "@/components/AccountButton";
 import { Button } from "@/components/ui/button";
@@ -72,39 +72,38 @@ const Articles = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-md mx-auto">
-        <header className="bg-card p-4 border-b border-border sticky top-0 z-10">
-          <div className="flex items-center justify-between mb-4">
-            <PageHeader />
-            <div className="flex items-center gap-2">
-              {user && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigate("/create-article")}
-                  className="hover:bg-muted hover:text-primary"
-                >
-                  <Plus className="w-4 h-4 mr-1" />
-                  Create Article
-                </Button>
-              )}
-              <AccountButton />
-            </div>
+    <ResponsiveLayout>
+      <header className="bg-card p-4 border-b border-border sticky top-0 z-10 lg:static">
+        <div className="flex items-center justify-between mb-4">
+          <PageHeader showLogo={false} />
+          <div className="flex items-center gap-2">
+            {user && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate("/create-article")}
+                className="hover:bg-muted hover:text-primary"
+              >
+                <Plus className="w-4 h-4 mr-1" />
+                Create Article
+              </Button>
+            )}
+            <AccountButton />
           </div>
-          <div className="relative">
-            <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Search articles, authors..."
-              className="pl-10 border-border"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-        </header>
+        </div>
+        <div className="relative max-w-md">
+          <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Search articles, authors..."
+            className="pl-10 border-border"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+      </header>
 
-        <div className="px-4 pt-4">
-          <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
+      <div className="px-4 pt-4 lg:px-6 mx-auto max-w-7xl">
+        <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
             <TabsList className="w-full justify-start overflow-x-auto flex-nowrap h-auto p-0 bg-transparent border-b rounded-none">
               {categories.map((category) => (
                 <TabsTrigger
@@ -365,12 +364,9 @@ const Articles = () => {
                 )}
               </TabsContent>
             ))}
-          </Tabs>
-        </div>
-
-        <BottomNav />
+        </Tabs>
       </div>
-    </div>
+    </ResponsiveLayout>
   );
 };
 

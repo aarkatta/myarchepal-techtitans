@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Calendar, Clock, MapPin, Folder, Loader2 } from "lucide-react";
+import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { AccountButton } from "@/components/AccountButton";
-import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EventsService, Event } from "@/services/events";
@@ -53,19 +53,18 @@ const Events = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-md mx-auto">
-        <header className="bg-card p-4 border-b border-border sticky top-0 z-10">
-          <div className="flex items-center justify-between">
-            <PageHeader />
-            <AccountButton />
-          </div>
-        </header>
+    <ResponsiveLayout>
+      <header className="bg-card p-4 border-b border-border sticky top-0 z-10 lg:static">
+        <div className="flex items-center justify-between">
+          <PageHeader />
+          <AccountButton />
+        </div>
+      </header>
 
-        <div className="p-4 space-y-6">
+      <div className="p-4 lg:p-6 space-y-6 mx-auto max-w-7xl">
           {/* Month Header */}
           <div>
-            <h1 className="text-4xl font-bold text-foreground">{getCurrentMonthYear()}</h1>
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground">{getCurrentMonthYear()}</h1>
           </div>
 
           {loading ? (
@@ -77,8 +76,8 @@ const Events = () => {
               <p className="text-muted-foreground">No events available</p>
             </Card>
           ) : (
-            /* Events List */
-            <div className="space-y-4">
+            /* Events List - Responsive Grid */
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {events.map((event) => {
                 const { month, day } = getMonthDay(event.date);
                 return (
@@ -145,11 +144,8 @@ const Events = () => {
             })}
             </div>
           )}
-        </div>
-
-        <BottomNav />
       </div>
-    </div>
+    </ResponsiveLayout>
   );
 };
 

@@ -7,12 +7,30 @@ export default {
   theme: {
     container: {
       center: true,
-      padding: "2rem",
+      padding: "1rem",
       screens: {
+        sm: "640px",
+        md: "768px",
+        lg: "1024px",
+        xl: "1280px",
         "2xl": "1400px",
       },
     },
+    screens: {
+      xs: "375px",      // Small phones
+      sm: "576px",      // Large phones
+      md: "768px",      // Tablets
+      lg: "1024px",     // Desktop (side nav breakpoint)
+      xl: "1280px",     // Large desktop
+      "2xl": "1440px",  // Ultra-wide
+      "3xl": "1920px",  // Full HD+
+    },
     extend: {
+      fontFamily: {
+        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'SF Pro Text', 'system-ui', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+        serif: ['Merriweather', 'Georgia', 'Cambria', 'Times New Roman', 'Times', 'serif'],
+        heading: ['Merriweather', 'Georgia', 'Cambria', 'Times New Roman', 'Times', 'serif'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

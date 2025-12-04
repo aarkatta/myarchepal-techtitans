@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { BottomNav } from "@/components/BottomNav";
+import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { useToast } from "@/components/ui/use-toast";
 import { SitesService, Site } from "@/services/sites";
 import { Timestamp } from "firebase/firestore";
@@ -396,16 +396,15 @@ const EditSite = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-md mx-auto">
+    <ResponsiveLayout>
         {/* Header */}
-        <header className="bg-card p-4 border-b border-border sticky top-0 z-10">
+        <header className="bg-card p-4 border-b border-border sticky top-0 z-10 lg:static">
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => navigate(`/site/${id}`)}
-              className="hover:bg-muted"
+              className="hover:bg-muted lg:hidden"
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
@@ -413,7 +412,7 @@ const EditSite = () => {
           </div>
         </header>
 
-        <form onSubmit={handleSubmit} className="p-4 space-y-4">
+        <form onSubmit={handleSubmit} className="p-4 lg:p-6 space-y-4 mx-auto max-w-7xl">
           {/* Site Conditions - Weather based on site coordinates */}
           {site.location?.latitude && site.location?.longitude && (
             <SiteConditions
@@ -714,10 +713,7 @@ const EditSite = () => {
             </Button>
           </div>
         </form>
-
-        <BottomNav />
-      </div>
-    </div>
+    </ResponsiveLayout>
   );
 };
 

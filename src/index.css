@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here.
 All colors MUST be HSL.
 */
 
@@ -53,6 +53,72 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 217 45% 15%; /* Heading color */
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Safe area insets for iPhone notch/home indicator */
+    --safe-area-inset-top: env(safe-area-inset-top);
+    --safe-area-inset-bottom: env(safe-area-inset-bottom);
+    --safe-area-inset-left: env(safe-area-inset-left);
+    --safe-area-inset-right: env(safe-area-inset-right);
+
+    /* ========================================
+       TYPOGRAPHY SYSTEM - Font Scale
+       Using clamp() for fluid responsive sizing
+       Format: clamp(min, preferred, max)
+       ======================================== */
+
+    /* Display - Hero headings, app title */
+    --font-size-display: clamp(1.75rem, 4vw + 0.5rem, 2.5rem);    /* 28px → 40px */
+
+    /* H1 - Page titles */
+    --font-size-h1: clamp(1.5rem, 3vw + 0.5rem, 2rem);            /* 24px → 32px */
+
+    /* H2 - Section headings */
+    --font-size-h2: clamp(1.25rem, 2.5vw + 0.25rem, 1.5rem);      /* 20px → 24px */
+
+    /* H3 - Card titles, component headers */
+    --font-size-h3: clamp(1rem, 2vw + 0.25rem, 1.25rem);          /* 16px → 20px */
+
+    /* H4 - Subheadings */
+    --font-size-h4: clamp(0.9375rem, 1.5vw + 0.25rem, 1.125rem);  /* 15px → 18px */
+
+    /* Body Large - Emphasized body text */
+    --font-size-body-lg: clamp(1rem, 1.25vw + 0.25rem, 1.125rem); /* 16px → 18px */
+
+    /* Body - Default body text */
+    --font-size-body: clamp(0.875rem, 1vw + 0.25rem, 1rem);       /* 14px → 16px */
+
+    /* Body Small - Secondary text */
+    --font-size-body-sm: clamp(0.8125rem, 0.75vw + 0.25rem, 0.875rem); /* 13px → 14px */
+
+    /* Caption - Labels, metadata */
+    --font-size-caption: clamp(0.6875rem, 0.5vw + 0.25rem, 0.75rem);   /* 11px → 12px */
+
+    /* Micro - Nav labels, badges */
+    --font-size-micro: clamp(0.625rem, 0.5vw + 0.125rem, 0.6875rem);   /* 10px → 11px */
+
+    /* ========================================
+       LINE HEIGHTS - Optimized for readability
+       ======================================== */
+    --line-height-tight: 1.2;      /* Headings */
+    --line-height-snug: 1.35;      /* Subheadings, short text */
+    --line-height-normal: 1.5;     /* Body text */
+    --line-height-relaxed: 1.625;  /* Long-form content */
+
+    /* ========================================
+       LETTER SPACING
+       ======================================== */
+    --letter-spacing-tight: -0.025em;   /* Large headings */
+    --letter-spacing-normal: 0;          /* Body text */
+    --letter-spacing-wide: 0.025em;      /* Small caps, labels */
+    --letter-spacing-wider: 0.05em;      /* All caps text */
+
+    /* ========================================
+       FONT WEIGHTS
+       ======================================== */
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
   }
 
   .dark {
@@ -100,8 +166,477 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
+  html {
+    /* Prevent text size adjustment on orientation change */
+    -webkit-text-size-adjust: 100%;
+    /* Enable smooth scrolling */
+    scroll-behavior: smooth;
+    /* Base font size for rem calculations */
+    font-size: 16px;
+  }
+
   body {
-    @apply bg-background text-foreground;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    @apply bg-background text-foreground antialiased;
+    /* Inter for body/UI text */
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    /* Default body typography */
+    font-size: var(--font-size-body);
+    line-height: var(--line-height-normal);
+    letter-spacing: var(--letter-spacing-normal);
+    font-weight: var(--font-weight-normal);
+    /* Prevent pull-to-refresh on iOS when not needed */
+    overscroll-behavior-y: contain;
+    /* Ensure content respects safe areas */
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    /* Font rendering optimization */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Improve tap targets for mobile */
+  button, a, [role="button"] {
+    @apply touch-manipulation;
+  }
+
+  /* Remove tap highlight on iOS */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Improve focus visibility for accessibility */
+  :focus-visible {
+    @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-background;
+  }
+
+  /* ========================================
+     DEFAULT HEADING STYLES
+     Using Merriweather (serif) for headings
+     ======================================== */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Merriweather', Georgia, 'Times New Roman', serif;
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-tight);
+    letter-spacing: var(--letter-spacing-tight);
+    color: hsl(var(--card-foreground));
+  }
+
+  h1 {
+    font-size: var(--font-size-h1);
+  }
+
+  h2 {
+    font-size: var(--font-size-h2);
+  }
+
+  h3 {
+    font-size: var(--font-size-h3);
+  }
+
+  h4 {
+    font-size: var(--font-size-h4);
+  }
+
+  /* Paragraph spacing */
+  p {
+    line-height: var(--line-height-normal);
+  }
+
+  /* Small text */
+  small {
+    font-size: var(--font-size-caption);
+    line-height: var(--line-height-snug);
+  }
+}
+
+/* Mobile-first utility classes */
+@layer utilities {
+  /* ========================================
+     RESPONSIVE LAYOUT UTILITIES
+     ======================================== */
+
+  /* Desktop content offset for side navigation */
+  .lg\:ml-sidenav {
+    @apply lg:ml-64 xl:ml-72;
+  }
+
+  /* Touch-friendly minimum sizes for buttons and interactive elements */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  @media (min-width: 1024px) {
+    .touch-target {
+      min-height: 36px;
+      min-width: 36px;
+    }
+  }
+
+  /* ========================================
+     TYPOGRAPHY UTILITY CLASSES
+     ======================================== */
+
+  /* Font Size Classes */
+  .text-display {
+    font-size: var(--font-size-display);
+    line-height: var(--line-height-tight);
+    letter-spacing: var(--letter-spacing-tight);
+  }
+
+  .text-h1 {
+    font-size: var(--font-size-h1);
+    line-height: var(--line-height-tight);
+    letter-spacing: var(--letter-spacing-tight);
+  }
+
+  .text-h2 {
+    font-size: var(--font-size-h2);
+    line-height: var(--line-height-tight);
+    letter-spacing: var(--letter-spacing-tight);
+  }
+
+  .text-h3 {
+    font-size: var(--font-size-h3);
+    line-height: var(--line-height-snug);
+  }
+
+  .text-h4 {
+    font-size: var(--font-size-h4);
+    line-height: var(--line-height-snug);
+  }
+
+  .text-body-lg {
+    font-size: var(--font-size-body-lg);
+    line-height: var(--line-height-normal);
+  }
+
+  .text-body {
+    font-size: var(--font-size-body);
+    line-height: var(--line-height-normal);
+  }
+
+  .text-body-sm {
+    font-size: var(--font-size-body-sm);
+    line-height: var(--line-height-normal);
+  }
+
+  .text-caption {
+    font-size: var(--font-size-caption);
+    line-height: var(--line-height-snug);
+  }
+
+  .text-micro {
+    font-size: var(--font-size-micro);
+    line-height: var(--line-height-snug);
+  }
+
+  /* Font Family Classes */
+  .font-sans {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  .font-serif {
+    font-family: 'Merriweather', Georgia, 'Times New Roman', serif;
+  }
+
+  .font-heading {
+    font-family: 'Merriweather', Georgia, 'Times New Roman', serif;
+  }
+
+  /* Font Weight Classes */
+  .font-normal {
+    font-weight: var(--font-weight-normal);
+  }
+
+  .font-medium {
+    font-weight: var(--font-weight-medium);
+  }
+
+  .font-semibold {
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .font-bold {
+    font-weight: var(--font-weight-bold);
+  }
+
+  /* Line Height Classes */
+  .leading-tight {
+    line-height: var(--line-height-tight);
+  }
+
+  .leading-snug {
+    line-height: var(--line-height-snug);
+  }
+
+  .leading-normal {
+    line-height: var(--line-height-normal);
+  }
+
+  .leading-relaxed {
+    line-height: var(--line-height-relaxed);
+  }
+
+  /* Letter Spacing Classes */
+  .tracking-tight {
+    letter-spacing: var(--letter-spacing-tight);
+  }
+
+  .tracking-normal {
+    letter-spacing: var(--letter-spacing-normal);
+  }
+
+  .tracking-wide {
+    letter-spacing: var(--letter-spacing-wide);
+  }
+
+  .tracking-wider {
+    letter-spacing: var(--letter-spacing-wider);
+  }
+
+  /* Safe area padding utilities */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-left {
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .safe-right {
+    padding-right: env(safe-area-inset-right);
+  }
+
+  .safe-x {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  .safe-y {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-all {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Bottom nav spacing for content */
+  .pb-nav {
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+  }
+
+  /* Prevent text selection on interactive elements */
+  .no-select {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* Smooth transitions for mobile interactions */
+  .transition-mobile {
+    @apply transition-all duration-200 ease-out;
+  }
+
+  /* Card hover effect for mobile */
+  .card-interactive {
+    @apply transition-all duration-200 active:scale-[0.98] active:opacity-90;
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Momentum scrolling for iOS */
+  .scroll-touch {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Smooth animations */
+@layer components {
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.2s ease-out;
+  }
+
+  /* ========================================
+     RESPONSIVE CARD STYLES
+     Enhanced hover effects for desktop
+     Touch-friendly interactions for mobile
+     ======================================== */
+
+  /* Card with desktop hover effects */
+  .card-hover {
+    @apply transition-all duration-200;
+  }
+
+  .card-hover:hover {
+    @apply shadow-lg;
+  }
+
+  @media (min-width: 1024px) {
+    .card-hover:hover {
+      transform: translateY(-2px);
+    }
+  }
+
+  /* Interactive card with image zoom on hover (desktop only) */
+  .card-interactive-image {
+    @apply overflow-hidden;
+  }
+
+  .card-interactive-image img {
+    @apply transition-transform duration-300;
+  }
+
+  @media (min-width: 1024px) {
+    .card-interactive-image:hover img {
+      transform: scale(1.05);
+    }
+  }
+
+  /* Button/link hover lift effect (desktop only) */
+  .hover-lift {
+    @apply transition-all duration-200;
+  }
+
+  @media (min-width: 1024px) {
+    .hover-lift:hover {
+      transform: translateY(-1px);
+      @apply shadow-md;
+    }
+  }
+
+  /* ========================================
+     SIDE NAVIGATION STYLES
+     ======================================== */
+
+  .sidenav-item {
+    @apply w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200;
+  }
+
+  .sidenav-item:hover {
+    @apply bg-muted/50;
+  }
+
+  .sidenav-item.active {
+    @apply bg-primary/10 text-primary;
+  }
+
+  /* ========================================
+     BOTTOM NAVIGATION STYLES
+     ======================================== */
+
+  .bottomnav-item {
+    @apply flex flex-col items-center gap-0.5 p-3 min-w-[4rem] rounded-xl transition-all duration-200;
+  }
+
+  .bottomnav-item:active {
+    transform: scale(0.95);
+  }
+
+  .bottomnav-item.active {
+    @apply text-primary bg-primary/10;
+  }
+
+  /* Floating action button */
+  .fab {
+    @apply fixed z-50 bg-primary text-primary-foreground rounded-full shadow-xl;
+    @apply hover:bg-primary/90 active:scale-95 transition-all duration-200;
+    @apply ring-4 ring-background;
+  }
+
+  .fab-bottom-right {
+    bottom: 5rem;
+    right: 1rem;
+  }
+
+  /* ========================================
+     RESPONSIVE GRID LAYOUTS
+     ======================================== */
+
+  /* Auto-fit grid that adapts to available space */
+  .grid-auto-fill {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+
+  @media (min-width: 1024px) {
+    .grid-auto-fill {
+      gap: 1.5rem;
+    }
+  }
+
+  /* Two-column layout for desktop */
+  .desktop-two-col {
+    @apply block;
+  }
+
+  @media (min-width: 1024px) {
+    .desktop-two-col {
+      @apply flex gap-8;
+    }
+
+    .desktop-two-col > .main-content {
+      @apply flex-1;
+    }
+
+    .desktop-two-col > .sidebar {
+      @apply w-80 xl:w-96 flex-shrink-0;
+    }
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
   }
 }

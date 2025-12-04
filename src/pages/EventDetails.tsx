@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Calendar, Clock, MapPin, Ticket, Loader2 } from "lucide-react";
+import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { PageHeader } from "@/components/PageHeader";
-import { BottomNav } from "@/components/BottomNav";
+import { AccountButton } from "@/components/AccountButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -98,26 +99,33 @@ const EventDetails = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-md mx-auto">
-        <header className="bg-card p-4 border-b border-border sticky top-0 z-10">
-          <div className="flex items-center gap-3 mb-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate(-1)}
-              className="hover:bg-muted"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <PageHeader />
+    <ResponsiveLayout>
+      {/* Header */}
+      <header className="bg-card/95 backdrop-blur-lg px-4 py-4 sm:px-6 lg:px-8 border-b border-border sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate(-1)}
+                className="hover:bg-muted h-10 w-10"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+              <PageHeader showLogo={false} />
+            </div>
+            <AccountButton />
           </div>
-        </header>
+        </div>
+      </header>
 
-        <div className="p-4 space-y-6">
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto">
+        <div className="p-4 sm:p-6 lg:p-8 space-y-6">
           {/* Event Header */}
           <div>
-            <h1 className="text-3xl font-bold text-foreground mb-6">
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-6">
               {event.title}
             </h1>
 
@@ -266,10 +274,8 @@ const EventDetails = () => {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-
-        <BottomNav />
       </div>
-    </div>
+    </ResponsiveLayout>
   );
 };
 

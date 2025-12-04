@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, UserPlus, Mail, Phone, MessageSquare } from "lucide-react";
+import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -61,29 +62,28 @@ const Team = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-md mx-auto">
-        <header className="bg-card p-4 border-b border-border sticky top-0 z-10">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate("/")}
-                className="hover:bg-muted"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-              <h1 className="text-xl font-semibold text-foreground">Team</h1>
-            </div>
-            <Button size="sm" className="gap-2">
-              <UserPlus className="w-4 h-4" />
-              Invite
+    <ResponsiveLayout>
+      <header className="bg-card p-4 border-b border-border sticky top-0 z-10 lg:static">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate("/")}
+              className="hover:bg-muted lg:hidden"
+            >
+              <ArrowLeft className="w-5 h-5" />
             </Button>
+            <h1 className="text-xl font-semibold text-foreground">Team</h1>
           </div>
-        </header>
+          <Button size="sm" className="gap-2">
+            <UserPlus className="w-4 h-4" />
+            Invite
+          </Button>
+        </div>
+      </header>
 
-        <div className="p-4 space-y-4">
+      <div className="p-4 lg:p-6 space-y-4 mx-auto max-w-7xl">
           <Card className="p-4 border-border bg-primary/5">
             <div className="flex items-center justify-between">
               <div>
@@ -107,7 +107,8 @@ const Team = () => {
           </Card>
 
           <div className="space-y-3">
-            <h3 className="font-semibold text-foreground">Team Members</h3>
+            <h3 className="font-semibold text-foreground text-lg md:text-xl">Team Members</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {teamMembers.map((member) => (
               <Card key={member.id} className="p-4 border-border hover:shadow-md transition-all">
                 <div className="flex items-start gap-3 mb-3">
@@ -138,16 +139,16 @@ const Team = () => {
                   </div>
                 </div>
 
-                <Button variant="outline" size="sm" className="w-full">
+                <Button variant="outline" size="sm" className="w-full h-11">
                   <MessageSquare className="w-4 h-4 mr-2" />
                   Message
                 </Button>
               </Card>
             ))}
-          </div>
+            </div>
         </div>
       </div>
-    </div>
+    </ResponsiveLayout>
   );
 };
 

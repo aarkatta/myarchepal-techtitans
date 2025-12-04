@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MapPin, FileText, Save, Loader2, Upload, Image as ImageIcon, Mic, MicOff } from "lucide-react";
+import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { AccountButton } from "@/components/AccountButton";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { BottomNav } from "@/components/BottomNav";
 import { useToast } from "@/components/ui/use-toast";
 import { SitesService } from "@/services/sites";
 import { Timestamp } from "firebase/firestore";
@@ -291,8 +291,8 @@ const NewSite = () => {
     try {
       const siteData = {
         name: formData.name,
-        description: formData.description,
-        researchAnalysis: formData.researchAnalysis || undefined,
+        description: formData.description || "",
+        researchAnalysis: formData.researchAnalysis || "",
         location: {
           latitude: formData.location.latitude ? parseFloat(formData.location.latitude) : DEFAULT_LOCATION.latitude,
           longitude: formData.location.longitude ? parseFloat(formData.location.longitude) : DEFAULT_LOCATION.longitude
@@ -346,18 +346,17 @@ const NewSite = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-md mx-auto">
-        {/* Header */}
-        <header className="bg-card p-4 border-b border-border sticky top-0 z-10">
-          <div className="flex items-center justify-between">
-            <PageHeader />
-            <AccountButton />
-          </div>
-        </header>
+    <ResponsiveLayout>
+      {/* Header */}
+      <header className="bg-card/95 backdrop-blur-lg px-4 py-4 sm:px-6 lg:px-8 border-b border-border sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <PageHeader showLogo={false} />
+          <AccountButton />
+        </div>
+      </header>
 
-        {/* Auth & Archaeologist Status */}
-        <div className="p-4 bg-muted/50">
+      {/* Auth & Archaeologist Status */}
+      <div className="p-4 lg:p-6 bg-muted/50 mx-auto max-w-7xl">
           <div className="text-sm space-y-1">
             <div>
               <strong>Auth Status:</strong> {user ? `✅ Signed in as ${user.email}` : '❌ Not signed in'}
@@ -399,15 +398,15 @@ const NewSite = () => {
 
         {/* Form - Only show if user can create */}
         {canCreate && (
-        <form onSubmit={handleSubmit} className="p-4 space-y-4">
+        <form onSubmit={handleSubmit} className="p-4 lg:p-6 space-y-4 mx-auto max-w-7xl">
           {/* Image Upload Section - Moved to top */}
           <Card className="p-6 border-border">
             {imagePreview ? (
-              <div className="relative">
+              <div className="relative flex justify-center">
                 <img
                   src={imagePreview}
                   alt="Site preview"
-                  className="w-full h-48 object-cover rounded-lg mb-4"
+                  className="max-w-full max-h-64 object-contain rounded-lg mb-4"
                 />
                 <Button
                   type="button"
@@ -469,7 +468,7 @@ const NewSite = () => {
               </div>
 
               <div>
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description">Description (Optional)</Label>
                 <Textarea
                   id="description"
                   name="description"
@@ -481,7 +480,7 @@ const NewSite = () => {
               </div>
 
               <div>
-                <Label htmlFor="researchAnalysis">Research and Analysis</Label>
+                <Label htmlFor="researchAnalysis">Research and Analysis (Optional)</Label>
                 <Textarea
                   id="researchAnalysis"
                   name="researchAnalysis"
@@ -493,7 +492,7 @@ const NewSite = () => {
               </div>
 
               <div>
-                <Label htmlFor="period">Historical Period</Label>
+                <Label htmlFor="period">Historical Period (Optional)</Label>
                 <Input
                   id="period"
                   name="period"
@@ -504,7 +503,7 @@ const NewSite = () => {
               </div>
 
               <div>
-                <Label htmlFor="dateDiscovered">Date Discovered</Label>
+                <Label htmlFor="dateDiscovered">Date Discovered (Optional)</Label>
                 <Input
                   id="dateDiscovered"
                   name="dateDiscovered"
@@ -515,7 +514,7 @@ const NewSite = () => {
               </div>
 
               <div>
-                <Label htmlFor="status">Status</Label>
+                <Label htmlFor="status">Status (Optional)</Label>
                 <Select
                   value={formData.status}
                   onValueChange={(value) => handleSelectChange(value, "status")}
@@ -659,10 +658,7 @@ const NewSite = () => {
           </div>
         </form>
         )}
-
-        <BottomNav />
-      </div>
-    </div>
+    </ResponsiveLayout>
   );
 };
 
