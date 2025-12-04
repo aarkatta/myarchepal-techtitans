@@ -93,8 +93,8 @@ export const RecentFinds = () => {
             <p className="text-muted-foreground text-body font-sans leading-normal">No recent artifacts</p>
           </Card>
         ) : (
-          /* Responsive grid: 1 col on mobile, 4 cols on md with cards spanning 2 cols each */
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-4 lg:gap-5">
+          /* Grid layout matching site-lists page */
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-5">
             {recentArtifacts.map((artifact, index) => (
               <Card
                 key={artifact.id}

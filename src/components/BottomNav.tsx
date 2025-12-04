@@ -218,6 +218,29 @@ export const BottomNav = () => {
             ) : isAuthenticated ? (
               // Account submenu
               <>
+                {/* Gift Shop items */}
+                {giftShopItems.map((item) => (
+                  <Button
+                    key={item.path}
+                    variant="ghost"
+                    className="w-full h-auto py-3 px-4 flex items-center gap-4 hover:bg-muted/80 active:scale-[0.98] rounded-xl transition-all justify-start"
+                    onClick={() => handleMenuItemClick(item.path)}
+                  >
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                      location.pathname === item.path ? "bg-primary/20" : "bg-muted"
+                    }`}>
+                      <item.icon className={`w-5 h-5 ${
+                        location.pathname === item.path ? "text-primary" : "text-muted-foreground"
+                      }`} />
+                    </div>
+                    <div className="text-left flex-1">
+                      <div className="text-body font-semibold text-foreground font-sans leading-snug">{item.label}</div>
+                      <div className="text-caption text-muted-foreground font-sans leading-snug">{item.description}</div>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                  </Button>
+                ))}
+                <div className="border-t border-border my-2" />
                 {accountItems.map((item) => (
                   <Button
                     key={item.label}
