@@ -32,6 +32,7 @@ import Explore from "./pages/Explore";
 import Reports from "./pages/Reports";
 import Account from "./pages/Account";
 import EditProfile from "./pages/EditProfile";
+import Feedback from "./pages/Feedback";
 import SignIn from "./pages/Authentication/sign-in";
 import SignUp from "./pages/Authentication/sign-up";
 import Articles from "./pages/Articles";
@@ -151,6 +152,11 @@ const App = () => (
             {/* Protected routes (require authentication) */}
             <Route path="/account" element={<Account />} />
             <Route path="/edit-profile" element={<EditProfile />} />
+            <Route path="/feedback" element={
+              <ProtectedRoute>
+                <Feedback />
+              </ProtectedRoute>
+            } />
             
             {/* Catch-all route for 404 pages */}
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

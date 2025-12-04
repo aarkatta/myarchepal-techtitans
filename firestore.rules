@@ -49,6 +49,20 @@ service cloud.firestore {
       allow read, write: if request.auth != null && resource.data.userId == request.auth.uid;
     }
 
+    // Feedback Collection - Users submit feedback
+    match /feedback/{feedbackId} {
+      // Allow authenticated users to create feedback (userId must match auth)
+      allow create: if request.auth != null
+                    && request.resource.data.userId == request.auth.uid;
+
+      // Allow users to read only their own feedback
+      allow read: if request.auth != null
+                  && resource.data.userId == request.auth.uid;
+
+      // Feedback is immutable - no updates or deletes
+      allow update, delete: if false;
+    }
+
     // ========================================================================
     // CHAT SYSTEM RULES
     // ========================================================================

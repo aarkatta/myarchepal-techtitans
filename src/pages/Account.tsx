@@ -14,7 +14,7 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Mail, Settings, Bell, Shield, HelpCircle, LogOut, Building2, Award, Calendar, Loader2, UserPlus } from "lucide-react";
+import { Mail, Settings, Bell, Shield, HelpCircle, LogOut, Building2, Award, Calendar, Loader2, UserPlus, MessageSquare } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
 import { PageHeader } from "@/components/PageHeader";
 import { Card } from "@/components/ui/card";
@@ -226,6 +226,14 @@ const Account = () => {
               <button className="w-full p-4 flex items-center gap-3 hover:bg-muted/50 transition-colors">
                 <HelpCircle className="w-5 h-5 text-muted-foreground" />
                 <span className="flex-1 text-left text-foreground">Help & Support</span>
+              </button>
+
+              <button
+                onClick={() => navigate("/feedback")}
+                className="w-full p-4 flex items-center gap-3 hover:bg-muted/50 transition-colors"
+              >
+                <MessageSquare className="w-5 h-5 text-muted-foreground" />
+                <span className="flex-1 text-left text-foreground">Give Feedback</span>
               </button>
             </Card>
           </div>
