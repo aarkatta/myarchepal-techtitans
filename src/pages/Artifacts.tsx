@@ -257,11 +257,14 @@ const Artifacts = () => {
     }
 
     return (
-      <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-4 gap-4" : "space-y-4"}>
+      <div
+        className={viewMode === "grid" ? "grid gap-4" : "space-y-4"}
+        style={viewMode === "grid" ? { gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 500px), 1fr))' } : undefined}
+      >
         {sortedArtifacts.map((artifact) => (
           <Card
             key={artifact.id}
-            className="p-3 sm:p-4 border-border/50 hover:shadow-lg active:scale-[0.99] lg:active:scale-100 transition-all cursor-pointer group md:col-span-2"
+            className="p-3 sm:p-4 border-border/50 hover:shadow-lg active:scale-[0.99] lg:active:scale-100 transition-all cursor-pointer group"
             onClick={() => handleArtifactClick(artifact.id!)}
           >
             <div className="flex gap-3 lg:gap-4">
