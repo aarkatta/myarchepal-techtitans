@@ -33,6 +33,7 @@ import Reports from "./pages/Reports";
 import Account from "./pages/Account";
 import EditProfile from "./pages/EditProfile";
 import Feedback from "./pages/Feedback";
+import FeedbackResults from "./pages/FeedbackResults";
 import SignIn from "./pages/Authentication/sign-in";
 import SignUp from "./pages/Authentication/sign-up";
 import Articles from "./pages/Articles";
@@ -159,6 +160,7 @@ const App = () => (
                 <Feedback />
               </ProtectedRoute>
             } />
+            <Route path="/feedback-results" element={<FeedbackResults />} />
 
             {/* Catch-all route for 404 pages */}
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

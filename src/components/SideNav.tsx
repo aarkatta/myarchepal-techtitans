@@ -37,7 +37,6 @@ const exploreItems = [
   { icon: Package, label: "Artifacts", path: "/artifacts" },
   { icon: Newspaper, label: "Articles", path: "/articles" },
   { icon: Calendar, label: "Events", path: "/events" },
-  
 ];
 
 // Create submenu items (for archaeologists)

@@ -33,6 +33,7 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { FeedbackService } from "@/services/feedback";
+import { ArchaeologistService, Archaeologist } from "@/services/archaeologists";
 
 // Define the features/capabilities to be rated
 const features = [
@@ -95,10 +96,26 @@ const Feedback = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [archaeologistProfile, setArchaeologistProfile] = useState<Archaeologist | null>(null);
 
   // Speech-to-text state
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+
+  // Fetch archaeologist profile when user is available
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (user?.uid) {
+        try {
+          const profile = await ArchaeologistService.getArchaeologistProfile(user.uid);
+          setArchaeologistProfile(profile);
+        } catch (error) {
+          console.error('Error fetching archaeologist profile:', error);
+        }
+      }
+    };
+    fetchProfile();
+  }, [user?.uid]);
 
   // Check if browser supports speech recognition
   const isSpeechSupported = typeof window !== "undefined" &&
@@ -227,10 +244,13 @@ const Feedback = () => {
     setLoading(true);
 
     try {
-      // Save feedback to Firebase
+      // Save feedback to Firebase with archaeologist profile data
       await FeedbackService.submitFeedback(
         user?.uid || "",
         user?.email || "",
+        user?.displayName || "",
+        archaeologistProfile?.displayName || user?.displayName || "",
+        archaeologistProfile?.institution || "",
         feedback,
         overallFeedback
       );
