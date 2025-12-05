@@ -89,11 +89,19 @@ const CreateArtifact = () => {
       try {
         setOptionsLoading(true);
         const options = await DropdownOptionsService.getOptions();
-        setTypes(options.types);
-        setPeriods(options.periods);
-        setMaterials(options.materials);
-        setConditions(options.conditions);
-        setSignificance(options.significance);
+
+        // Helper function to sort alphabetically while keeping "Other" at the end
+        const sortWithOtherLast = (arr: string[]) => {
+          const other = arr.filter(item => item === "Other");
+          const rest = arr.filter(item => item !== "Other").sort((a, b) => a.localeCompare(b));
+          return [...rest, ...other];
+        };
+
+        setTypes(sortWithOtherLast(options.types));
+        setPeriods(sortWithOtherLast(options.periods));
+        setMaterials(sortWithOtherLast(options.materials));
+        setConditions(sortWithOtherLast(options.conditions));
+        setSignificance(sortWithOtherLast(options.significance));
       } catch (error) {
         console.error('Error fetching dropdown options:', error);
         // Keep default values on error
