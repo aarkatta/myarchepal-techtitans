@@ -1,5 +1,5 @@
-import { Home, Compass, Plus, Heart, Newspaper, Package, PlusSquare, Calendar, Store, Menu, Users, User, Settings, Lock, Info, Mail, LogOut, ChevronRight, BookOpen, MessageSquare } from "lucide-react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { Home, Compass, Plus, Heart, Newspaper, Package, PlusSquare, Calendar, Store, Menu, Users, User, Settings, Lock, Info, Mail, LogOut, ChevronRight, BookOpen, MessageSquare, Star } from "lucide-react";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useState } from "react";
 import {
   Sheet,
@@ -94,6 +94,20 @@ export const BottomNav = () => {
     <>
       {/* Bottom Navigation Bar - Hidden on desktop (lg+) */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-lg border-t border-border shadow-lg z-50 safe-bottom">
+        {/* Footer Info Strip */}
+        <div className="flex items-center justify-center gap-2 text-[10px] text-muted-foreground px-2 pt-1.5 pb-0.5">
+          <span>&copy; {new Date().getFullYear()} ArchePal</span>
+          <span>|</span>
+          <Link
+            to="/feedback-results"
+            className="hover:text-primary transition-colors flex items-center gap-0.5"
+          >
+            <Star className="w-3 h-3" />
+            Testimonials
+          </Link>
+          <span>|</span>
+          <span className="font-medium">Tech Titans&trade;</span>
+        </div>
         <div className="flex items-center justify-around max-w-lg mx-auto px-2 py-2 relative">
 
           {/* Home */}

@@ -14,7 +14,7 @@ export const Footer = () => {
     <footer className="bg-card border-t border-border py-4 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row items-center justify-center gap-2 text-sm text-muted-foreground">
-          <span>&copy; {currentYear} MyArchaePal. All rights reserved.</span>
+          <span>&copy; {currentYear} ArchePal. All rights reserved.</span>
           <span className="hidden sm:inline">|</span>
           <Link
             to="/feedback-results"
