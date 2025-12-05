@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Upload, Image as ImageIcon, MapPin, Calendar, Ruler, Tag, Loader2, Building2, DollarSign, Mic, MicOff, FileText } from "lucide-react";
+import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { PageHeader } from "@/components/PageHeader";
+import { AccountButton } from "@/components/AccountButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,6 +13,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { ArtifactsService, Artifact } from "@/services/artifacts";
 import { SitesService, Site } from "@/services/sites";
 import { AzureOpenAIService } from "@/services/azure-openai";
+import { DropdownOptionsService } from "@/services/dropdown-options";
 import { useAuth } from "@/hooks/use-auth";
 import { useArchaeologist } from "@/hooks/use-archaeologist";
 import { Timestamp } from "firebase/firestore";
@@ -22,11 +25,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-const types = ["Coin", "Ceramic", "Weapon", "Glass", "Personal Ornament", "Sculpture", "Other"];
-const periods = ["Imperial Roman", "Roman", "Late Roman", "Byzantine", "Medieval", "Other"];
-const materials = ["Gold", "Silver", "Bronze", "Iron", "Terracotta", "Ceramic", "Glass", "Marble", "Stone", "Bone", "Wood", "Other"];
-const conditions = ["Excellent", "Good", "Fair", "Fragment", "Poor"];
-const significance = ["Very High", "High", "Medium", "Low"];
+
+// Default values (fallback if Firebase fetch fails)
+const defaultTypes = ["Coin", "Ceramic", "Weapon", "Glass", "Personal Ornament", "Sculpture", "Other"];
+const defaultPeriods = ["Imperial Roman", "Roman", "Late Roman", "Byzantine", "Medieval", "Other"];
+const defaultMaterials = ["Gold", "Silver", "Bronze", "Iron", "Terracotta", "Ceramic", "Glass", "Marble", "Stone", "Bone", "Wood", "Other"];
+const defaultConditions = ["Excellent", "Good", "Fair", "Fragment", "Poor", "Other"];
+const defaultSignificance = ["Very High", "High", "Medium", "Low", "Other"];
 
 const EditArtifact = () => {
   const { id } = useParams<{ id: string }>();
@@ -48,6 +53,19 @@ const EditArtifact = () => {
   const [model3DPrice, setModel3DPrice] = useState<string>("");
   const [isRecording, setIsRecording] = useState(false);
   const [recognition, setRecognition] = useState<any>(null);
+  const [customType, setCustomType] = useState("");
+  const [customPeriod, setCustomPeriod] = useState("");
+  const [customMaterial, setCustomMaterial] = useState("");
+  const [customCondition, setCustomCondition] = useState("");
+  const [customSignificance, setCustomSignificance] = useState("");
+
+  // Dropdown options from Firebase
+  const [types, setTypes] = useState<string[]>(defaultTypes);
+  const [periods, setPeriods] = useState<string[]>(defaultPeriods);
+  const [materials, setMaterials] = useState<string[]>(defaultMaterials);
+  const [conditions, setConditions] = useState<string[]>(defaultConditions);
+  const [significance, setSignificance] = useState<string[]>(defaultSignificance);
+  const [optionsLoading, setOptionsLoading] = useState(true);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -164,6 +182,28 @@ const EditArtifact = () => {
 
     fetchArtifact();
   }, [id, user, navigate, toast]);
+
+  // Fetch dropdown options from Firebase
+  useEffect(() => {
+    const fetchDropdownOptions = async () => {
+      try {
+        setOptionsLoading(true);
+        const options = await DropdownOptionsService.getOptions();
+        setTypes(options.types);
+        setPeriods(options.periods);
+        setMaterials(options.materials);
+        setConditions(options.conditions);
+        setSignificance(options.significance);
+      } catch (error) {
+        console.error('Error fetching dropdown options:', error);
+        // Keep default values on error
+      } finally {
+        setOptionsLoading(false);
+      }
+    };
+
+    fetchDropdownOptions();
+  }, []);
 
   // Fetch active sites created by the current user
   useEffect(() => {
@@ -418,19 +458,75 @@ const EditArtifact = () => {
       // Find the selected site to get its name
       const selectedSite = userSites.find(site => site.id === formData.siteId);
 
+      // Save custom values to Firebase dropdown options if provided
+      if (formData.type === "Other" && customType && customType.trim()) {
+        try {
+          await DropdownOptionsService.addOptionValue("types", customType.trim());
+          if (!types.includes(customType.trim())) {
+            setTypes(prev => [...prev.filter(t => t !== "Other"), customType.trim(), "Other"]);
+          }
+        } catch (error) {
+          console.error("Error saving custom type:", error);
+        }
+      }
+
+      if (formData.period === "Other" && customPeriod && customPeriod.trim()) {
+        try {
+          await DropdownOptionsService.addOptionValue("periods", customPeriod.trim());
+          if (!periods.includes(customPeriod.trim())) {
+            setPeriods(prev => [...prev.filter(p => p !== "Other"), customPeriod.trim(), "Other"]);
+          }
+        } catch (error) {
+          console.error("Error saving custom period:", error);
+        }
+      }
+
+      if (formData.material === "Other" && customMaterial && customMaterial.trim()) {
+        try {
+          await DropdownOptionsService.addOptionValue("materials", customMaterial.trim());
+          if (!materials.includes(customMaterial.trim())) {
+            setMaterials(prev => [...prev.filter(m => m !== "Other"), customMaterial.trim(), "Other"]);
+          }
+        } catch (error) {
+          console.error("Error saving custom material:", error);
+        }
+      }
+
+      if (formData.condition === "Other" && customCondition && customCondition.trim()) {
+        try {
+          await DropdownOptionsService.addOptionValue("conditions", customCondition.trim());
+          if (!conditions.includes(customCondition.trim())) {
+            setConditions(prev => [...prev.filter(c => c !== "Other"), customCondition.trim(), "Other"]);
+          }
+        } catch (error) {
+          console.error("Error saving custom condition:", error);
+        }
+      }
+
+      if (formData.significance === "Other" && customSignificance && customSignificance.trim()) {
+        try {
+          await DropdownOptionsService.addOptionValue("significance", customSignificance.trim());
+          if (!significance.includes(customSignificance.trim())) {
+            setSignificance(prev => [...prev.filter(s => s !== "Other"), customSignificance.trim(), "Other"]);
+          }
+        } catch (error) {
+          console.error("Error saving custom significance:", error);
+        }
+      }
+
       const updateData: any = {
         name: formData.name,
-        type: formData.type,
-        period: formData.period,
+        type: formData.type === "Other" && customType ? customType.trim() : formData.type,
+        period: formData.period === "Other" && customPeriod ? customPeriod.trim() : formData.period,
         date: formData.date || "",
-        material: formData.material,
+        material: formData.material === "Other" && customMaterial ? customMaterial.trim() : formData.material,
         dimensions: formData.dimensions || "",
         location: formData.location,
         excavationDate: Timestamp.fromDate(new Date(formData.excavationDate)),
-        condition: formData.condition,
+        condition: formData.condition === "Other" && customCondition ? customCondition.trim() : formData.condition,
         description: formData.description,
         findContext: formData.findContext || "",
-        significance: formData.significance,
+        significance: formData.significance === "Other" && customSignificance ? customSignificance.trim() : formData.significance,
         tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()) : [],
         finder: formData.finder || "",
         aiImageSummary: aiSummary || artifact.aiImageSummary || "",
@@ -503,50 +599,65 @@ const EditArtifact = () => {
 
   if (fetchingArtifact) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
-          <p className="text-muted-foreground">Loading artifact...</p>
+      <ResponsiveLayout>
+        <header className="bg-card/95 backdrop-blur-lg px-4 py-4 sm:px-6 lg:px-8 border-b border-border sticky top-0 z-40">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <PageHeader showLogo={false} />
+            <AccountButton />
+          </div>
+        </header>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
+            <p className="text-muted-foreground">Loading artifact...</p>
+          </div>
         </div>
-      </div>
+      </ResponsiveLayout>
     );
   }
 
   if (!canCreate) {
     return (
-      <div className="min-h-screen bg-background pb-24">
-        <div className="max-w-md mx-auto">
-          <header className="bg-card p-4 border-b border-border sticky top-0 z-10">
-            <PageHeader />
-          </header>
-          <div className="p-4">
-            <Card>
-              <div className="p-6 text-center">
-                <p className="text-muted-foreground mb-4">
-                  Only verified archaeologists can edit artifacts.
-                </p>
+      <ResponsiveLayout>
+        <header className="bg-card/95 backdrop-blur-lg px-4 py-4 sm:px-6 lg:px-8 border-b border-border sticky top-0 z-40">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <PageHeader showLogo={false} />
+            <AccountButton />
+          </div>
+        </header>
+        <div className="p-4 lg:p-6">
+          <Card>
+            <div className="p-6 text-center">
+              <p className="text-muted-foreground mb-4">
+                {!user ? 'Please sign in as an archaeologist to edit artifacts.' :
+                 !isArchaeologist ? 'Only verified archaeologists can edit artifacts.' :
+                 'Loading...'}
+              </p>
+              {!user && (
                 <Button
                   onClick={() => navigate('/authentication/sign-in')}
                   variant="outline"
                 >
                   Sign In as Archaeologist
                 </Button>
-              </div>
-            </Card>
-          </div>
+              )}
+            </div>
+          </Card>
         </div>
-      </div>
+      </ResponsiveLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-md mx-auto">
-        <header className="bg-card p-4 border-b border-border sticky top-0 z-10">
-          <PageHeader />
-        </header>
+    <ResponsiveLayout>
+      <header className="bg-card/95 backdrop-blur-lg px-4 py-4 sm:px-6 lg:px-8 border-b border-border sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <PageHeader showLogo={false} />
+          <AccountButton />
+        </div>
+      </header>
 
-        <div className="p-4 lg:p-6 space-y-6 mx-auto max-w-7xl">
+      <div className="p-4 lg:p-6 space-y-6 mx-auto max-w-7xl">
           <Card className="p-6 border-border">
             {imagePreview ? (
               <div className="relative">
@@ -844,8 +955,17 @@ const EditArtifact = () => {
               <div className="space-y-2">
                 <Label htmlFor="type" className="text-foreground">Type</Label>
                 <Select
-                  value={formData.type}
-                  onValueChange={(value) => setFormData({ ...formData, type: value })}
+                  value={formData.type === "Other" && customType ? customType : formData.type}
+                  onValueChange={(value) => {
+                    if (types.includes(value)) {
+                      setFormData({ ...formData, type: value });
+                      if (value !== "Other") {
+                        setCustomType("");
+                      }
+                    } else {
+                      setFormData({ ...formData, type: "Other" });
+                    }
+                  }}
                 >
                   <SelectTrigger className="border-border">
                     <SelectValue placeholder="Select type" />
@@ -856,15 +976,37 @@ const EditArtifact = () => {
                         {type}
                       </SelectItem>
                     ))}
+                    {customType && formData.type === "Other" && (
+                      <SelectItem key="custom-type" value={customType}>
+                        {customType}
+                      </SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
+                {formData.type === "Other" && (
+                  <Input
+                    placeholder="Enter custom type..."
+                    value={customType}
+                    onChange={(e) => setCustomType(e.target.value)}
+                    className="border-border mt-2"
+                  />
+                )}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="period" className="text-foreground">Period</Label>
                 <Select
-                  value={formData.period}
-                  onValueChange={(value) => setFormData({ ...formData, period: value })}
+                  value={formData.period === "Other" && customPeriod ? customPeriod : formData.period}
+                  onValueChange={(value) => {
+                    if (periods.includes(value)) {
+                      setFormData({ ...formData, period: value });
+                      if (value !== "Other") {
+                        setCustomPeriod("");
+                      }
+                    } else {
+                      setFormData({ ...formData, period: "Other" });
+                    }
+                  }}
                 >
                   <SelectTrigger className="border-border">
                     <SelectValue placeholder="Select period" />
@@ -875,8 +1017,21 @@ const EditArtifact = () => {
                         {period}
                       </SelectItem>
                     ))}
+                    {customPeriod && formData.period === "Other" && (
+                      <SelectItem key="custom-period" value={customPeriod}>
+                        {customPeriod}
+                      </SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
+                {formData.period === "Other" && (
+                  <Input
+                    placeholder="Enter custom period..."
+                    value={customPeriod}
+                    onChange={(e) => setCustomPeriod(e.target.value)}
+                    className="border-border mt-2"
+                  />
+                )}
               </div>
             </div>
 
@@ -895,8 +1050,17 @@ const EditArtifact = () => {
               <div className="space-y-2">
                 <Label htmlFor="material" className="text-foreground">Material</Label>
                 <Select
-                  value={formData.material}
-                  onValueChange={(value) => setFormData({ ...formData, material: value })}
+                  value={formData.material === "Other" && customMaterial ? customMaterial : formData.material}
+                  onValueChange={(value) => {
+                    if (materials.includes(value)) {
+                      setFormData({ ...formData, material: value });
+                      if (value !== "Other") {
+                        setCustomMaterial("");
+                      }
+                    } else {
+                      setFormData({ ...formData, material: "Other" });
+                    }
+                  }}
                 >
                   <SelectTrigger className="border-border">
                     <SelectValue placeholder="Select material" />
@@ -907,15 +1071,37 @@ const EditArtifact = () => {
                         {material}
                       </SelectItem>
                     ))}
+                    {customMaterial && formData.material === "Other" && (
+                      <SelectItem key="custom-material" value={customMaterial}>
+                        {customMaterial}
+                      </SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
+                {formData.material === "Other" && (
+                  <Input
+                    placeholder="Enter custom material..."
+                    value={customMaterial}
+                    onChange={(e) => setCustomMaterial(e.target.value)}
+                    className="border-border mt-2"
+                  />
+                )}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="condition" className="text-foreground">Condition</Label>
                 <Select
-                  value={formData.condition}
-                  onValueChange={(value) => setFormData({ ...formData, condition: value })}
+                  value={formData.condition === "Other" && customCondition ? customCondition : formData.condition}
+                  onValueChange={(value) => {
+                    if (conditions.includes(value)) {
+                      setFormData({ ...formData, condition: value });
+                      if (value !== "Other") {
+                        setCustomCondition("");
+                      }
+                    } else {
+                      setFormData({ ...formData, condition: "Other" });
+                    }
+                  }}
                 >
                   <SelectTrigger className="border-border">
                     <SelectValue placeholder="Select condition" />
@@ -926,8 +1112,21 @@ const EditArtifact = () => {
                         {condition}
                       </SelectItem>
                     ))}
+                    {customCondition && formData.condition === "Other" && (
+                      <SelectItem key="custom-condition" value={customCondition}>
+                        {customCondition}
+                      </SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
+                {formData.condition === "Other" && (
+                  <Input
+                    placeholder="Enter custom condition..."
+                    value={customCondition}
+                    onChange={(e) => setCustomCondition(e.target.value)}
+                    className="border-border mt-2"
+                  />
+                )}
               </div>
             </div>
 
@@ -976,8 +1175,17 @@ const EditArtifact = () => {
             <div className="space-y-2">
               <Label htmlFor="significance" className="text-foreground">Significance</Label>
               <Select
-                value={formData.significance}
-                onValueChange={(value) => setFormData({ ...formData, significance: value })}
+                value={formData.significance === "Other" && customSignificance ? customSignificance : formData.significance}
+                onValueChange={(value) => {
+                  if (significance.includes(value)) {
+                    setFormData({ ...formData, significance: value });
+                    if (value !== "Other") {
+                      setCustomSignificance("");
+                    }
+                  } else {
+                    setFormData({ ...formData, significance: "Other" });
+                  }
+                }}
               >
                 <SelectTrigger className="border-border">
                   <SelectValue placeholder="Select significance level" />
@@ -988,8 +1196,21 @@ const EditArtifact = () => {
                       {sig}
                     </SelectItem>
                   ))}
+                  {customSignificance && formData.significance === "Other" && (
+                    <SelectItem key="custom-significance" value={customSignificance}>
+                      {customSignificance}
+                    </SelectItem>
+                  )}
                 </SelectContent>
               </Select>
+              {formData.significance === "Other" && (
+                <Input
+                  placeholder="Enter custom significance..."
+                  value={customSignificance}
+                  onChange={(e) => setCustomSignificance(e.target.value)}
+                  className="border-border mt-2"
+                />
+              )}
             </div>
 
             <div className="space-y-2">
@@ -1063,8 +1284,7 @@ const EditArtifact = () => {
             </div>
           </form>
         </div>
-      </div>
-    </div>
+    </ResponsiveLayout>
   );
 };
 

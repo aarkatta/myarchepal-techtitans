@@ -63,6 +63,16 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    // DropdownOptions Collection - Predefined dropdown values
+    match /DropdownOptions/{docId} {
+      // Anyone can read dropdown options (needed for forms)
+      allow read: if true;
+      // Archaeologists can create/update dropdown options (add new types)
+      allow create, update: if isArchaeologist();
+      // No deletion allowed
+      allow delete: if false;
+    }
+
     // ========================================================================
     // CHAT SYSTEM RULES
     // ========================================================================
