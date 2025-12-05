@@ -52,6 +52,8 @@ const DigitalDiary = () => {
   const [speechTargetMode, setSpeechTargetMode] = useState<"create" | "edit">("create");
   const speechTargetModeRef = useRef<"create" | "edit">("create");
   const [recognition, setRecognition] = useState<any>(null);
+  const [interimText, setInterimText] = useState<string>("");
+  const baseContentRef = useRef<string>("");
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [aiSummary, setAiSummary] = useState<string>("");
@@ -129,27 +131,39 @@ const DigitalDiary = () => {
         recognitionInstance.lang = 'en-US';
 
         recognitionInstance.onresult = (event: any) => {
+          let interimTranscript = '';
           let finalTranscript = '';
 
-          for (let i = event.resultIndex; i < event.results.length; i++) {
+          // Process all results
+          for (let i = 0; i < event.results.length; i++) {
             const transcript = event.results[i][0].transcript;
             if (event.results[i].isFinal) {
               finalTranscript += transcript + ' ';
+            } else {
+              interimTranscript += transcript;
             }
           }
 
+          // Show interim text in real-time (gray text indicator)
+          setInterimText(interimTranscript);
+
+          // When we have final text, append it to the content
           if (finalTranscript) {
-            // Check which dialog is active using ref (avoids stale closure)
+            setInterimText(''); // Clear interim since it's now final
             if (speechTargetModeRef.current === "edit") {
               setEditFormData(prev => ({
                 ...prev,
-                content: prev.content + finalTranscript
+                content: baseContentRef.current + finalTranscript
               }));
+              // Update base content to include the final transcript
+              baseContentRef.current = baseContentRef.current + finalTranscript;
             } else {
               setFormData(prev => ({
                 ...prev,
-                content: prev.content + finalTranscript
+                content: baseContentRef.current + finalTranscript
               }));
+              // Update base content to include the final transcript
+              baseContentRef.current = baseContentRef.current + finalTranscript;
             }
           }
         };
@@ -186,10 +200,17 @@ const DigitalDiary = () => {
     if (isRecording) {
       recognition.stop();
       setIsRecording(false);
+      setInterimText(''); // Clear any remaining interim text
     } else {
       try {
         setSpeechTargetMode(mode);
         speechTargetModeRef.current = mode;
+        // Capture the current content before starting
+        if (mode === "edit") {
+          baseContentRef.current = editFormData.content;
+        } else {
+          baseContentRef.current = formData.content;
+        }
         recognition.start();
         setIsRecording(true);
         toast({
@@ -765,9 +786,16 @@ const DigitalDiary = () => {
                   className="min-h-32 border-border"
                 />
                 {isRecording && speechTargetMode === "create" && (
-                  <div className="flex items-center gap-2 text-sm text-destructive">
-                    <div className="w-2 h-2 bg-destructive rounded-full animate-pulse" />
-                    <span>Recording in progress... Speak now</span>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm text-destructive">
+                      <div className="w-2 h-2 bg-destructive rounded-full animate-pulse" />
+                      <span>Recording in progress... Speak now</span>
+                    </div>
+                    {interimText && (
+                      <div className="p-2 bg-muted/50 rounded-md border border-dashed border-muted-foreground/30">
+                        <p className="text-sm text-muted-foreground italic">{interimText}</p>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -899,9 +927,16 @@ const DigitalDiary = () => {
                   className="min-h-32 border-border"
                 />
                 {isRecording && speechTargetMode === "edit" && (
-                  <div className="flex items-center gap-2 text-sm text-destructive">
-                    <div className="w-2 h-2 bg-destructive rounded-full animate-pulse" />
-                    <span>Recording in progress... Speak now</span>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm text-destructive">
+                      <div className="w-2 h-2 bg-destructive rounded-full animate-pulse" />
+                      <span>Recording in progress... Speak now</span>
+                    </div>
+                    {interimText && (
+                      <div className="p-2 bg-muted/50 rounded-md border border-dashed border-muted-foreground/30">
+                        <p className="text-sm text-muted-foreground italic">{interimText}</p>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
