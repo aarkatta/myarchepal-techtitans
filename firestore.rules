@@ -33,8 +33,9 @@ service cloud.firestore {
     }
 
     // Archaeologists Collection - Manage archaeologist roles
+    // Public read for displaying user profiles on testimonials page (displayName, credentials, institution)
     match /archaeologists/{userId} {
-      allow read: if request.auth != null;
+      allow read: if true;
       allow write: if request.auth != null && request.auth.uid == userId;
     }
 
@@ -55,12 +56,21 @@ service cloud.firestore {
       allow create: if request.auth != null
                     && request.resource.data.userId == request.auth.uid;
 
-      // Allow users to read only their own feedback
-      allow read: if request.auth != null
-                  && resource.data.userId == request.auth.uid;
+      // Allow anyone to read feedback (public testimonials page)
+      allow read: if true;
 
       // Feedback is immutable - no updates or deletes
       allow update, delete: if false;
+    }
+
+    // DropdownOptions Collection - Predefined dropdown values
+    match /DropdownOptions/{docId} {
+      // Anyone can read dropdown options (needed for forms)
+      allow read: if true;
+      // Archaeologists can create/update dropdown options (add new types)
+      allow create, update: if isArchaeologist();
+      // No deletion allowed
+      allow delete: if false;
     }
 
     // ========================================================================
