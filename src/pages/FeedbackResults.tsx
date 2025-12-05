@@ -31,8 +31,8 @@ import { useToast } from "@/hooks/use-toast";
 import { FeedbackService, FeedbackData, FeatureFeedback } from "@/services/feedback";
 import { Timestamp } from "firebase/firestore";
 
-// Validation code for accessing feedback results
-const VALIDATION_CODE = "32795";
+// Validation code for accessing feedback results (from environment variable)
+const VALIDATION_CODE = import.meta.env.VITE_FEEDBACK_VALIDATION_CODE || "";
 
 // Feature names for display
 const featureNames: Record<string, string> = {
