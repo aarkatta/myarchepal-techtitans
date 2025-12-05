@@ -19,7 +19,8 @@ import {
   Wrench,
   MessageSquare,
   Search,
-  Lock
+  Lock,
+  Mail
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -114,14 +115,21 @@ const FeedbackResults = () => {
     return hasPhD ? `Dr. ${name}` : name;
   };
 
+  // Helper to get email address
+  const getEmail = (item: FeedbackData) => {
+    return item.userEmail || "No email provided";
+  };
+
   // Derived State: Filtered List
   const filteredList = useMemo(() => {
     if (!searchTerm) return feedbackList;
     const lowerTerm = searchTerm.toLowerCase();
     return feedbackList.filter(item => {
       const displayName = getDisplayName(item);
+      const email = getEmail(item);
       return (
         displayName.toLowerCase().includes(lowerTerm) ||
+        email.toLowerCase().includes(lowerTerm) ||
         (item.userInstitution && item.userInstitution.toLowerCase().includes(lowerTerm)) ||
         (item.overallFeedback && item.overallFeedback.toLowerCase().includes(lowerTerm))
       );
@@ -137,28 +145,50 @@ const FeedbackResults = () => {
   const stats = useMemo(() => {
     const total = feedbackList.length;
     // Calculate distinct useful "Yes" votes across all features
-    let usefulCount = 0;
-    let totalVotes = 0;
-    
+    let usefulYesCount = 0;
+    let totalUsefulVotes = 0;
+
+    // Frequency counts
+    let alwaysCount = 0;
+    let oftenCount = 0;
+    let totalFrequencyVotes = 0;
+
     feedbackList.forEach(item => {
       if(item.feedback) {
         Object.values(item.feedback).forEach(f => {
+            // Count useful votes
             if (f.useful) {
-                totalVotes++;
-                if(f.useful === 'Yes') usefulCount++;
+                totalUsefulVotes++;
+                if(f.useful === 'Yes') usefulYesCount++;
+            }
+            // Count frequency votes
+            if (f.frequency) {
+                totalFrequencyVotes++;
+                if(f.frequency === 'Always') alwaysCount++;
+                if(f.frequency === 'Often') oftenCount++;
             }
         })
       }
     });
 
-    const satisfaction = totalVotes > 0 ? Math.round((usefulCount / totalVotes) * 100) : 0;
+    const usefulYesPercent = totalUsefulVotes > 0 ? Math.round((usefulYesCount / totalUsefulVotes) * 100) : 0;
+    const alwaysPercent = totalFrequencyVotes > 0 ? Math.round((alwaysCount / totalFrequencyVotes) * 100) : 0;
+    const oftenPercent = totalFrequencyVotes > 0 ? Math.round((oftenCount / totalFrequencyVotes) * 100) : 0;
 
     // Last 30 days
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     const recent = feedbackList.filter(item => item.submittedAt?.toDate() > thirtyDaysAgo).length;
 
-    return { total, satisfaction, recent };
+    return {
+      total,
+      usefulYesPercent,
+      alwaysPercent,
+      oftenPercent,
+      alwaysCount,
+      oftenCount,
+      recent
+    };
   }, [feedbackList]);
 
   // Helpers
@@ -312,23 +342,32 @@ const FeedbackResults = () => {
           </div>
 
           {/* Dashboard Summary Cards */}
-          <div className="max-w-[1600px] mx-auto w-full grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+          <div className="max-w-[1600px] mx-auto w-full grid grid-cols-1 md:grid-cols-4 gap-4 mb-2">
             <Card className="shadow-none border-border/60 bg-muted/20">
                 <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">Satisfaction Score</CardTitle>
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Useful: Yes</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold">{stats.satisfaction}%</div>
-                    <p className="text-xs text-muted-foreground">Rated "Useful: Yes"</p>
+                    <div className="text-2xl font-bold text-green-600">{stats.usefulYesPercent}%</div>
+                    <p className="text-xs text-muted-foreground">Rated features as useful</p>
                 </CardContent>
             </Card>
             <Card className="shadow-none border-border/60 bg-muted/20">
                 <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">Last 30 Days</CardTitle>
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Usage: Always</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold">{stats.recent}</div>
-                    <p className="text-xs text-muted-foreground">New submissions</p>
+                    <div className="text-2xl font-bold">{stats.alwaysPercent}%</div>
+                    <p className="text-xs text-muted-foreground">{stats.alwaysCount} responses</p>
+                </CardContent>
+            </Card>
+            <Card className="shadow-none border-border/60 bg-muted/20">
+                <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Usage: Often</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold">{stats.oftenPercent}%</div>
+                    <p className="text-xs text-muted-foreground">{stats.oftenCount} responses</p>
                 </CardContent>
             </Card>
             <Card className="shadow-none border-border/60 bg-muted/20">
@@ -337,18 +376,18 @@ const FeedbackResults = () => {
                 </CardHeader>
                 <CardContent>
                     <div className="text-2xl font-bold">{stats.total}</div>
-                    <p className="text-xs text-muted-foreground">All time submissions</p>
+                    <p className="text-xs text-muted-foreground">{stats.recent} in last 30 days</p>
                 </CardContent>
             </Card>
           </div>
         </header>
 
         {/* Master Detail View */}
-        <div className="flex-1 overflow-hidden">
-            <div className="max-w-[1600px] mx-auto w-full h-full p-4 md:p-6 pt-2 flex flex-col md:flex-row gap-6">
+        <div className="flex-1 overflow-auto">
+            <div className="max-w-[1600px] mx-auto w-full p-4 md:p-6 pt-2 flex flex-col md:flex-row gap-6 md:items-start">
 
                 {/* LEFT PANE: Master List */}
-                <div className="w-full md:w-[350px] lg:w-[400px] flex flex-col h-[calc(100vh-280px)] border border-border rounded-xl bg-card shadow-sm overflow-hidden">
+                <div className="w-full md:w-[350px] lg:w-[400px] flex flex-col md:max-h-[calc(100vh-280px)] border border-border rounded-xl bg-card shadow-sm overflow-hidden md:sticky md:top-4">
                     <div className="p-3 border-b border-border bg-muted/10">
                          <div className="relative">
                             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -379,6 +418,10 @@ const FeedbackResults = () => {
                                                 {item.userInstitution}
                                             </span>
                                         )}
+                                        <span className="text-xs text-muted-foreground flex items-center gap-1">
+                                            <Mail className="w-3 h-3" />
+                                            {getEmail(item)}
+                                        </span>
                                     </div>
                                     <span className="text-xs text-muted-foreground line-clamp-2 mt-1">
                                         {item.overallFeedback || "No overall comments provided..."}
@@ -398,9 +441,9 @@ const FeedbackResults = () => {
                 </div>
 
                 {/* RIGHT PANE: Detail View */}
-                <div className="flex-1 h-[calc(100vh-280px)] overflow-hidden flex flex-col">
+                <div className="flex-1 flex flex-col">
                     {selectedItem ? (
-                         <ScrollArea className="h-full pr-4">
+                         <div className="pr-4">
                             <div className="space-y-6 pb-12">
 
                                 {/* Overall Feedback Section */}
@@ -416,6 +459,12 @@ const FeedbackResults = () => {
                                                     )}
                                                     {" "}on {formatDate(selectedItem.submittedAt)}
                                                 </CardDescription>
+                                                <div className="flex items-center gap-1.5 mt-2 text-blue-700/80 text-sm">
+                                                    <Mail className="w-4 h-4" />
+                                                    <a href={`mailto:${getEmail(selectedItem)}`} className="hover:underline">
+                                                        {getEmail(selectedItem)}
+                                                    </a>
+                                                </div>
                                             </div>
                                         </div>
                                     </CardHeader>
@@ -446,9 +495,9 @@ const FeedbackResults = () => {
                                     )}
                                 </div>
                             </div>
-                         </ScrollArea>
+                         </div>
                     ) : (
-                        <div className="h-full flex flex-col items-center justify-center text-muted-foreground border rounded-xl border-dashed bg-muted/10">
+                        <div className="min-h-[200px] flex flex-col items-center justify-center text-muted-foreground border rounded-xl border-dashed bg-muted/10">
                             <MessageSquare className="w-12 h-12 mb-4 opacity-20" />
                             <p>Select a submission to view details</p>
                         </div>
