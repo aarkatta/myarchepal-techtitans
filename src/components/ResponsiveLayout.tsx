@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { SideNav } from "./SideNav";
 import { BottomNav } from "./BottomNav";
+import { Footer } from "./Footer";
 
 interface ResponsiveLayoutProps {
   children: ReactNode;
@@ -41,9 +42,15 @@ export const ResponsiveLayout = ({
         lg:ml-64 xl:ml-72
         ${showBottomNav ? 'pb-nav lg:pb-0' : ''}
         ${className}
+        flex flex-col
       `}>
-        <div className={fullWidth ? 'w-full' : 'w-full max-w-7xl mx-auto'}>
+        <div className={`flex-1 ${fullWidth ? 'w-full' : 'w-full max-w-7xl mx-auto'}`}>
           {children}
+        </div>
+
+        {/* Footer - Hidden on mobile when bottom nav is shown */}
+        <div className={showBottomNav ? 'hidden lg:block' : ''}>
+          <Footer />
         </div>
       </div>
 
