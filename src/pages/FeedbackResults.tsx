@@ -69,7 +69,7 @@ const FeedbackResults = () => {
       setValidationError(true);
       toast({
         title: "Invalid Code",
-        description: "The validation code you entered is incorrect.",
+        description: "The validation code you entered is incorrect. Please contact. support if you need assistance.",
         variant: "destructive",
       });
     }
