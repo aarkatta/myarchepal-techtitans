@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useArticles, useFeaturedArticles, useArticlesByCategory, useArticleSearch } from "@/hooks/use-articles";
 import { useAuth } from "@/hooks/use-auth";
 import { Timestamp } from "firebase/firestore";
+import { createEmojiElement } from "@/lib/sanitize";
 
 const Articles = () => {
   const navigate = useNavigate();
@@ -155,7 +156,7 @@ const Articles = () => {
                                       target.style.display = 'none';
                                       const parent = target.parentElement;
                                       if (parent) {
-                                        parent.innerHTML = `<span class="text-2xl">${article.imageEmoji || '📄'}</span>`;
+                                        parent.appendChild(createEmojiElement(article.imageEmoji || '📄', 'text-2xl'));
                                       }
                                     }}
                                   />
@@ -226,7 +227,7 @@ const Articles = () => {
                                     target.style.display = 'none';
                                     const parent = target.parentElement;
                                     if (parent) {
-                                      parent.innerHTML = `<span class="text-xl">${article.imageEmoji || '📄'}</span>`;
+                                      parent.appendChild(createEmojiElement(article.imageEmoji || '📄', 'text-xl'));
                                     }
                                   }}
                                 />
@@ -327,7 +328,7 @@ const Articles = () => {
                                 target.style.display = 'none';
                                 const parent = target.parentElement;
                                 if (parent) {
-                                  parent.innerHTML = `<span class="text-xl">${article.imageEmoji || '📄'}</span>`;
+                                  parent.appendChild(createEmojiElement(article.imageEmoji || '📄', 'text-xl'));
                                 }
                               }}
                             />

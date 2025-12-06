@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useArtifacts } from "@/hooks/use-artifacts";
 import { useAuth } from "@/hooks/use-auth";
 import { Timestamp } from "firebase/firestore";
+import { createEmojiElement, getArtifactEmoji } from "@/lib/sanitize";
 
 const periods = ["All", "Imperial Roman", "Roman", "Late Roman", "Byzantine", "Medieval"];
 const types = ["All", "Coin", "Ceramic", "Weapon", "Glass", "Personal Ornament", "Sculpture"];
@@ -280,15 +281,7 @@ const Artifacts = () => {
                       target.style.display = 'none';
                       const parent = target.parentElement;
                       if (parent) {
-                        parent.innerHTML = `<span class="text-3xl lg:text-4xl">${
-                          artifact.type === 'Coin' ? '🪙' :
-                          artifact.type === 'Ceramic' ? '🏺' :
-                          artifact.type === 'Weapon' ? '🗡️' :
-                          artifact.type === 'Glass' ? '🍶' :
-                          artifact.type === 'Personal Ornament' ? '📎' :
-                          artifact.type === 'Sculpture' ? '🗿' :
-                          '🏺'
-                        }</span>`;
+                        parent.appendChild(createEmojiElement(getArtifactEmoji(artifact.type), 'text-3xl lg:text-4xl'));
                       }
                     }}
                   />
