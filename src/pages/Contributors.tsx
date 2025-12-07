@@ -30,7 +30,7 @@ const contributors: Contributor[] = [
     role: "Lead Full-Stack Developer, And administrator of ArchePal",
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=casey",
     initials: "AK",
-    bio: "I Architected and developed the core infrastructure of Archepal. Led the implementation of the site management system, artifact catalog, and real-time collaboration features. Passionate about creating realworld solutions and byrani",
+    bio: " Architected and developed the core infrastructure of Archepal. Led the implementation of the site management system, artifact catalog, and real-time collaboration features. Passionate about creating realworld solutions and byrani",
     specialization: "React, Node.js & Firebase, Python ",
     social: {
       github: "https://github.com/Ak-dude",
@@ -44,7 +44,7 @@ const contributors: Contributor[] = [
     role: "Lead UI/UX Designer",
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=maya",
     initials: "SS",
-    bio: "Built the responsive user interface and interactive components that make Archepal accessible on any device. Specialized in creating smooth animations and optimizing performance for large datasets. Focused on making complex archaeological data easy to explore and understand.",
+    bio: ".",
     specialization: "React & TypeScript",
     social: {
       github: "https://github.com",

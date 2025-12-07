@@ -6,6 +6,7 @@
  */
 
 import { Link } from "react-router-dom";
+import * as http from "node:http";
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -24,9 +25,10 @@ export const Footer = () => {
           </Link>
           <span className="hidden sm:inline">|</span>
           <span className="font-medium">
-            Tech Titans&trade;
+            <Link to={"https://github.com/Ak-dude"} className={"hover:text-primary transition-colors underline-offset-4 hover:underline"}> Arjun Katta </Link>
           </span>
         </div>
+
       </div>
     </footer>
   );
