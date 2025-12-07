@@ -387,7 +387,7 @@ const FeedbackResults = () => {
             <div className="max-w-[1600px] mx-auto w-full p-4 md:p-6 pt-2 flex flex-col md:flex-row gap-6 md:items-start">
 
                 {/* LEFT PANE: Master List */}
-                <div className="w-full md:w-[350px] lg:w-[400px] flex flex-col md:max-h-[calc(100vh-280px)] border border-border rounded-xl bg-card shadow-sm overflow-hidden md:sticky md:top-4">
+                <div className="w-full md:w-[350px] lg:w-[400px] flex flex-col md:h-[calc(100vh-280px)] md:min-h-[400px] border border-border rounded-xl bg-card shadow-sm overflow-hidden md:sticky md:top-4">
                     <div className="p-3 border-b border-border bg-muted/10">
                          <div className="relative">
                             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
