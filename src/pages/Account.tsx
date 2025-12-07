@@ -14,7 +14,7 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Mail, Settings, Bell, Shield, HelpCircle, LogOut, Building2, Award, Calendar, Loader2, UserPlus, MessageSquare } from "lucide-react";
+import { Mail, Settings, Bell, Shield, HelpCircle, LogOut, Building2, Award, Calendar, Loader2, UserPlus, MessageSquare, BookOpen } from "lucide-react";
 import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { Card } from "@/components/ui/card";
@@ -233,6 +233,14 @@ const Account = () => {
               >
                 <MessageSquare className="w-5 h-5 text-muted-foreground" />
                 <span className="flex-1 text-left text-foreground">Give Feedback</span>
+              </button>
+
+              <button
+                onClick={() => navigate("/blogs")}
+                className="w-full p-4 flex items-center gap-3 hover:bg-muted/50 transition-colors"
+              >
+                <BookOpen className="w-5 h-5 text-muted-foreground" />
+                <span className="flex-1 text-left text-foreground">Blogs</span>
               </button>
             </Card>
           </div>

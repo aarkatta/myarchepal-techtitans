@@ -38,6 +38,7 @@ import SignIn from "./pages/Authentication/sign-in";
 import SignUp from "./pages/Authentication/sign-up";
 import Articles from "./pages/Articles";
 import ArticleDetails from "./pages/ArticleDetails";
+import Blogs from "./pages/Blogs";
 import CreateArticle from "./pages/CreateArticle";
 import EditArticle from "./pages/EditArticle";
 import Artifacts from "./pages/Artifacts";
@@ -88,6 +89,7 @@ const App = () => (
             <Route path="/reports" element={<Reports />} />
             <Route path="/articles" element={<Articles />} />
             <Route path="/article/:id" element={<ArticleDetails />} />
+            <Route path="/blogs" element={<Blogs />} />
             <Route path="/artifacts" element={<Artifacts />} />
             <Route path="/artifact/:id" element={<ArtifactDetails />} />
             <Route path="/checkout/:id" element={<Checkout />} />
