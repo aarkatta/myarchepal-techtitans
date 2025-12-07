@@ -24,7 +24,7 @@ export const Footer = () => {
           </Link>
           <span className="hidden sm:inline">|</span>
           <span className="font-medium">
-            <Link to={"https://github.com/Ak-dude"} className={"hover:text-primary transition-colors underline-offset-4 hover:underline"}> Arjun Katta </Link>
+            <Link to={"https://github.com/Ak-dude"} className={"hover:text-primary transition-colors underline-offset-4 hover:underline"}> Arjun Katta + Techtitans </Link>
           </span>
         </div>
       </div>
