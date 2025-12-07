@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { MapPin, Calendar, Users, FileText, Edit, Share2, Loader2, ChevronRight } from "lucide-react";
+import { MapPin, Calendar, Users, FileText, Edit, Share2, Loader2, ChevronRight, Satellite } from "lucide-react";
 import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { AccountButton } from "@/components/AccountButton";
@@ -343,11 +343,21 @@ const SiteDetails = () => {
                 )}
               </div>
               {(site.location?.latitude && site.location?.longitude) && (
-                <div>
-                  <span className="text-sm font-medium">Coordinates:</span>
-                  <p className="text-muted-foreground">
-                    {site.location.latitude}, {site.location.longitude}
-                  </p>
+                <div className="space-y-3">
+                  <div>
+                    <span className="text-sm font-medium">Coordinates:</span>
+                    <p className="text-muted-foreground">
+                      {site.location.latitude}, {site.location.longitude}
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => navigate(`/site-time-machine?lat=${site.location?.latitude}&lon=${site.location?.longitude}&name=${encodeURIComponent(site.name)}&siteId=${site.id}`)}
+                  >
+                    <Satellite className="w-4 h-4 mr-2" />
+                    View Satellite History
+                  </Button>
                 </div>
               )}
             </CardContent>
