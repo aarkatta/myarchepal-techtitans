@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, MapPin, Calendar, Filter, Grid3X3, List, Loader2, Building2, Plus } from "lucide-react";
+import { Search, MapPin, Calendar, Filter, Grid3X3, List, Loader2, Building2, Plus, WifiOff, CloudOff, Database } from "lucide-react";
 import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { AccountButton } from "@/components/AccountButton";
@@ -21,7 +21,7 @@ const types = ["All", "Coin", "Ceramic", "Weapon", "Glass", "Personal Ornament",
 const Artifacts = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { artifacts, loading, error } = useArtifacts();
+  const { artifacts, loading, error, offlineCount, isOnline, usingCachedData } = useArtifacts();
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedPeriod, setSelectedPeriod] = useState("All");
   const [selectedType, setSelectedType] = useState("All");
@@ -125,6 +125,25 @@ const Artifacts = () => {
           <div className="flex items-center justify-between mb-3 sm:mb-4">
             <PageHeader showLogo={false} />
             <div className="flex items-center gap-2">
+              {/* Offline indicator */}
+              {!isOnline && (
+                <div className="flex items-center gap-1.5 px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded-full text-xs font-medium">
+                  <WifiOff className="w-3 h-3" />
+                  <span>Offline</span>
+                </div>
+              )}
+              {offlineCount > 0 && (
+                <div className="flex items-center gap-1.5 px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-full text-xs font-medium">
+                  <CloudOff className="w-3 h-3" />
+                  <span>{offlineCount} pending</span>
+                </div>
+              )}
+              {usingCachedData && (
+                <div className="flex items-center gap-1.5 px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 rounded-full text-xs font-medium">
+                  <Database className="w-3 h-3" />
+                  <span>Cached</span>
+                </div>
+              )}
               {user && (
                 <Button
                   variant="default"
@@ -262,14 +281,21 @@ const Artifacts = () => {
         className={viewMode === "grid" ? "grid gap-4" : "space-y-4"}
         style={viewMode === "grid" ? { gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 500px), 1fr))' } : undefined}
       >
-        {sortedArtifacts.map((artifact) => (
+        {sortedArtifacts.map((artifact) => {
+          const isOfflineArtifact = 'isOffline' in artifact && artifact.isOffline;
+          return (
           <Card
             key={artifact.id}
-            className="p-3 sm:p-4 border-border/50 hover:shadow-lg active:scale-[0.99] lg:active:scale-100 transition-all cursor-pointer group"
-            onClick={() => handleArtifactClick(artifact.id!)}
+            className={`p-3 sm:p-4 border-border/50 hover:shadow-lg active:scale-[0.99] lg:active:scale-100 transition-all cursor-pointer group ${isOfflineArtifact ? 'border-amber-400/50 bg-amber-50/30 dark:bg-amber-900/10' : ''}`}
+            onClick={() => !isOfflineArtifact && handleArtifactClick(artifact.id!)}
           >
             <div className="flex gap-3 lg:gap-4">
-              <div className="w-16 h-16 lg:w-20 lg:h-20 bg-muted rounded-lg lg:rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden group-hover:scale-105 transition-transform">
+              <div className="w-16 h-16 lg:w-20 lg:h-20 bg-muted rounded-lg lg:rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden group-hover:scale-105 transition-transform relative">
+                {isOfflineArtifact && (
+                  <div className="absolute inset-0 bg-amber-500/20 flex items-center justify-center z-10">
+                    <CloudOff className="w-6 h-6 text-amber-600" />
+                  </div>
+                )}
                 {artifact.images && artifact.images.length > 0 ? (
                   <img
                     src={artifact.images[0]}
@@ -299,9 +325,16 @@ const Artifacts = () => {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-2 mb-2">
-                  <h3 className="font-semibold text-foreground line-clamp-1 lg:text-lg group-hover:text-primary transition-colors">
-                    {artifact.name}
-                  </h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold text-foreground line-clamp-1 lg:text-lg group-hover:text-primary transition-colors">
+                      {artifact.name}
+                    </h3>
+                    {isOfflineArtifact && (
+                      <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-300 text-[10px]">
+                        Pending Sync
+                      </Badge>
+                    )}
+                  </div>
                   <Badge variant="outline" className={getSignificanceColor(artifact.significance)}>
                     {artifact.significance}
                   </Badge>
@@ -334,7 +367,8 @@ const Artifacts = () => {
               </div>
             </div>
           </Card>
-        ))}
+        );
+        })}
       </div>
     );
   }

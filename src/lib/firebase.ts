@@ -1,7 +1,8 @@
 import { initializeApp, FirebaseApp } from 'firebase/app';
-import { getFirestore, Firestore } from 'firebase/firestore';
-import { getAuth, Auth } from 'firebase/auth';
+import { getFirestore, Firestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore';
+import { getAuth, Auth, indexedDBLocalPersistence, initializeAuth } from 'firebase/auth';
 import { getStorage, FirebaseStorage } from 'firebase/storage';
+import { Capacitor } from '@capacitor/core';
 
 // Your Firebase configuration
 const firebaseConfig = {
@@ -39,9 +40,25 @@ try {
     appId: firebaseConfig.appId ? '✅ Set' : '❌ Missing'
   });
 
+  const isNative = Capacitor.isNativePlatform();
+  console.log('📱 Running on:', isNative ? 'Native (Capacitor)' : 'Web Browser');
+
   app = initializeApp(firebaseConfig);
+
+  // Initialize Firestore with settings optimized for mobile
   db = getFirestore(app);
-  auth = getAuth(app);
+
+  // For native platforms, use indexedDB persistence for auth to avoid GAPI issues
+  if (isNative) {
+    auth = initializeAuth(app, {
+      persistence: indexedDBLocalPersistence
+    });
+    console.log('🔐 Auth initialized with indexedDB persistence (native)');
+  } else {
+    auth = getAuth(app);
+    console.log('🔐 Auth initialized with default persistence (web)');
+  }
+
   storage = getStorage(app);
 
   console.log('✅ Firebase initialized successfully');

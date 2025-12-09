@@ -29,3 +29,23 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Capacitor - Native platforms
+# Include ios/ and android/ folders in git for team collaboration
+# Comment out these lines if you want to exclude native projects
+# ios/
+# android/
+
+# Native build artifacts
+ios/App/App/public
+ios/App/Pods
+ios/DerivedData
+android/app/src/main/assets/public
+android/.gradle
+android/build
+android/app/build
+*.keystore
+*.jks
+
+# Capacitor generated files
+capacitor.config.json

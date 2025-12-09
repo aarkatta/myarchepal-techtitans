@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { MapPin, Calendar, Users, FileText, Edit, Share2, Loader2, ChevronRight, Satellite } from "lucide-react";
+import { MapPin, Calendar, Users, FileText, Edit, Share2, Loader2, ChevronRight, Satellite, WifiOff } from "lucide-react";
 import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { AccountButton } from "@/components/AccountButton";
@@ -14,6 +14,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { useArchaeologist } from "@/hooks/use-archaeologist";
 import { useToast } from "@/components/ui/use-toast";
 import { Timestamp } from "firebase/firestore";
+import { useNetworkStatus } from "@/hooks/use-network";
+import { OfflineCacheService } from "@/services/offline-cache";
 
 const SiteDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,11 +23,13 @@ const SiteDetails = () => {
   const { user } = useAuth();
   const { isArchaeologist } = useArchaeologist();
   const { toast } = useToast();
+  const { isOnline } = useNetworkStatus();
   const [site, setSite] = useState<Site | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [siteArtifacts, setSiteArtifacts] = useState<Artifact[]>([]);
   const [artifactsLoading, setArtifactsLoading] = useState(false);
+  const [usingCachedData, setUsingCachedData] = useState(false);
 
   useEffect(() => {
     const fetchSite = async () => {
@@ -37,8 +41,39 @@ const SiteDetails = () => {
 
       try {
         setLoading(true);
-        const siteData = await SitesService.getSiteById(id);
-        setSite(siteData);
+
+        // Try to get cached data first
+        const { data: cachedSite } = await OfflineCacheService.getCachedSiteDetails(id);
+
+        if (isOnline) {
+          // Online: fetch fresh data
+          try {
+            const siteData = await SitesService.getSiteById(id);
+            setSite(siteData);
+            setUsingCachedData(false);
+            // Cache the fresh data
+            if (siteData) {
+              await OfflineCacheService.cacheSiteDetails(id, siteData);
+            }
+          } catch (fetchError) {
+            console.error("Error fetching site:", fetchError);
+            // Fall back to cached data if available
+            if (cachedSite) {
+              setSite(cachedSite);
+              setUsingCachedData(true);
+            } else {
+              setError("Failed to load site details");
+            }
+          }
+        } else {
+          // Offline: use cached data
+          if (cachedSite) {
+            setSite(cachedSite);
+            setUsingCachedData(true);
+          } else {
+            setError("Site not available offline");
+          }
+        }
       } catch (error) {
         console.error("Error fetching site:", error);
         setError("Failed to load site details");
@@ -48,7 +83,7 @@ const SiteDetails = () => {
     };
 
     fetchSite();
-  }, [id]);
+  }, [id, isOnline]);
 
   // Fetch artifacts for this site
   useEffect(() => {
@@ -57,8 +92,31 @@ const SiteDetails = () => {
 
       try {
         setArtifactsLoading(true);
-        const artifacts = await ArtifactsService.getArtifactsBySite(id);
-        setSiteArtifacts(artifacts);
+
+        // Try cached data first
+        const { data: cachedArtifacts } = await OfflineCacheService.getCachedSiteArtifacts(id);
+
+        if (isOnline) {
+          try {
+            const artifacts = await ArtifactsService.getArtifactsBySite(id);
+            setSiteArtifacts(artifacts);
+            // Cache the artifacts
+            if (artifacts.length > 0) {
+              await OfflineCacheService.cacheSiteArtifacts(id, artifacts);
+            }
+          } catch (fetchError) {
+            console.error("Error fetching site artifacts:", fetchError);
+            // Fall back to cached
+            if (cachedArtifacts) {
+              setSiteArtifacts(cachedArtifacts);
+            }
+          }
+        } else {
+          // Offline: use cached
+          if (cachedArtifacts) {
+            setSiteArtifacts(cachedArtifacts);
+          }
+        }
       } catch (error) {
         console.error("Error fetching site artifacts:", error);
       } finally {
@@ -67,7 +125,7 @@ const SiteDetails = () => {
     };
 
     fetchSiteArtifacts();
-  }, [id]);
+  }, [id, isOnline]);
 
   const formatDate = (date: Date | Timestamp | undefined) => {
     if (!date) return "Unknown date";
@@ -155,6 +213,18 @@ const SiteDetails = () => {
           <div className="flex items-center justify-between">
             <PageHeader showLogo={false} />
             <div className="flex items-center gap-2">
+              {/* Offline indicator */}
+              {!isOnline && (
+                <div className="flex items-center gap-1.5 px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded-full text-xs font-medium">
+                  <WifiOff className="w-3 h-3" />
+                  <span>Offline</span>
+                </div>
+              )}
+              {usingCachedData && (
+                <div className="flex items-center gap-1.5 px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-full text-xs font-medium">
+                  <span>Cached</span>
+                </div>
+              )}
               <Button
                 variant="ghost"
                 size="icon"
@@ -163,7 +233,7 @@ const SiteDetails = () => {
               >
                 <Share2 className="w-4 h-4" />
               </Button>
-              {canEdit && (
+              {canEdit && isOnline && (
                 <Button
                   variant="ghost"
                   size="icon"

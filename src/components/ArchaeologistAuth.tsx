@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { auth } from '@/lib/firebase';
 import {
   createUserWithEmailAndPassword,
@@ -15,6 +15,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { ArchaeologistService } from '@/services/archaeologists';
 import { VerificationService } from '@/services/verification';
 import { Loader2, Mail, Lock, GraduationCap, Shield, CheckCircle, User } from 'lucide-react';
+import { useKeyboard } from '@/hooks/use-keyboard';
 
 interface ArchaeologistAuthProps {
   onAuthSuccess?: () => void;
@@ -31,6 +32,25 @@ export const ArchaeologistAuth: React.FC<ArchaeologistAuthProps> = ({
   const [loading, setLoading] = useState(false);
   const [resetEmailSent, setResetEmailSent] = useState(false);
   const { toast } = useToast();
+  const { hideKeyboard } = useKeyboard();
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Handle tap outside inputs to dismiss keyboard
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleTap = (e: TouchEvent | MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const interactiveElements = ['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON', 'A', 'LABEL'];
+      if (interactiveElements.includes(target.tagName)) return;
+      if (target.closest('button') || target.closest('a') || target.closest('label')) return;
+      hideKeyboard();
+    };
+
+    container.addEventListener('touchstart', handleTap, { passive: true });
+    return () => container.removeEventListener('touchstart', handleTap);
+  }, [hideKeyboard]);
 
   // Signup-specific fields
   const [signupData, setSignupData] = useState({
@@ -204,6 +224,7 @@ export const ArchaeologistAuth: React.FC<ArchaeologistAuthProps> = ({
   };
 
   return (
+    <div ref={containerRef}>
     <Card className="w-full max-w-md mx-auto">
       <CardHeader className="text-center">
         <CardTitle className="flex items-center justify-center gap-2">
@@ -424,6 +445,7 @@ export const ArchaeologistAuth: React.FC<ArchaeologistAuthProps> = ({
         </div>
       </CardContent>
     </Card>
+    </div>
   );
 };
 

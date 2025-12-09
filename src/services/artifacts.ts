@@ -18,6 +18,8 @@ import {
 } from 'firebase/firestore';
 import { db, storage } from '@/lib/firebase';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { OfflineQueueService } from './offline-queue';
+import { Filesystem, Directory } from '@capacitor/filesystem';
 
 // Artifact interface matching your Firestore document structure
 export interface Artifact {
@@ -484,4 +486,45 @@ export class ArtifactsService {
       // Don't throw error as model might already be deleted
     }
   }
+
+  static async syncOfflineData() {
+  const queue = await OfflineQueueService.getQueue();
+  if (queue.length === 0) return;
+
+  console.log(`🔄 Syncing ${queue.length} items...`);
+
+  for (const item of queue) {
+    try {
+      // 1. Create artifact document (excluding local fields)
+      const { id, localImagePath, status, ...artifactData } = item;
+      
+      // Convert date string back to Timestamp
+      const newDocId = await this.createArtifact({
+          ...artifactData,
+          excavationDate: Timestamp.fromDate(new Date(artifactData.excavationDate))
+      });
+
+      // 2. Upload Image if exists
+      if (localImagePath) {
+         const fileData = await Filesystem.readFile({
+          path: localImagePath,
+          directory: Directory.Data
+        });
+        const response = await fetch(`data:image/jpeg;base64,${fileData.data}`);
+        const blob = await response.blob();
+        const file = new File([blob], "offline_image.jpg", { type: "image/jpeg" });
+        
+        const downloadUrl = await this.uploadArtifactImage(newDocId, file);
+        await this.updateArtifactImages(newDocId, [downloadUrl]);
+      }
+
+      // 3. Remove from queue
+      await OfflineQueueService.removeFromQueue(id, localImagePath);
+      
+    } catch (error) {
+      console.error(`❌ Failed to sync item ${item.id}`, error);
+    }
+  }
+}
+
 }
