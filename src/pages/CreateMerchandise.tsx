@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Upload, Image as ImageIcon, ShoppingBag, DollarSign, Package, Loader2 } from "lucide-react";
+import { useKeyboard } from "@/hooks/use-keyboard";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -25,9 +26,28 @@ const CreateMerchandise = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
+  const { hideKeyboard } = useKeyboard();
+  const containerRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  // Handle tap outside inputs to dismiss keyboard
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleTap = (e: TouchEvent | MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const interactiveElements = ['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON', 'A', 'LABEL'];
+      if (interactiveElements.includes(target.tagName)) return;
+      if (target.closest('button') || target.closest('a') || target.closest('label')) return;
+      hideKeyboard();
+    };
+
+    container.addEventListener('touchstart', handleTap, { passive: true });
+    return () => container.removeEventListener('touchstart', handleTap);
+  }, [hideKeyboard]);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -146,7 +166,7 @@ const CreateMerchandise = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div ref={containerRef} className="min-h-screen bg-background pb-24">
       <div className="max-w-md mx-auto">
         <header className="bg-card p-4 border-b border-border sticky top-0 z-10">
           <PageHeader />

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { MapPin, Calendar, Edit, Share2, Loader2, Building2, Ruler, Star, ShoppingCart, DollarSign, Trash2, Image as ImageIcon } from "lucide-react";
+import { MapPin, Calendar, Edit, Share2, Loader2, Building2, Ruler, Star, ShoppingCart, DollarSign, Trash2, Image as ImageIcon, WifiOff } from "lucide-react";
 import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { AccountButton } from "@/components/AccountButton";
@@ -14,6 +14,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { useArchaeologist } from "@/hooks/use-archaeologist";
 import { useToast } from "@/components/ui/use-toast";
 import { Timestamp } from "firebase/firestore";
+import { useNetworkStatus } from "@/hooks/use-network";
+import { OfflineCacheService } from "@/services/offline-cache";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,12 +33,14 @@ const ArtifactDetails = () => {
   const { user } = useAuth();
   const { isArchaeologist } = useArchaeologist();
   const { toast } = useToast();
+  const { isOnline } = useNetworkStatus();
   const [artifact, setArtifact] = useState<Artifact | null>(null);
   const [site, setSite] = useState<Site | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleting3DImage, setDeleting3DImage] = useState(false);
+  const [usingCachedData, setUsingCachedData] = useState(false);
 
   useEffect(() => {
     const fetchArtifact = async () => {
@@ -48,29 +52,78 @@ const ArtifactDetails = () => {
 
       try {
         setLoading(true);
-        const artifactData = await ArtifactsService.getArtifactById(id);
-        setArtifact(artifactData);
 
-        // Fetch site data if artifact has a siteId
-        if (artifactData?.siteId) {
-          try {
-            const siteData = await SitesService.getSiteById(artifactData.siteId);
-            setSite(siteData);
-          } catch (siteError) {
-            console.error("Error fetching site data:", siteError);
-            // Don't set error here, just log it - artifact details can still be shown
+        // Try to get cached data first
+        const cachedArtifact = await OfflineCacheService.getCachedArtifactDetails(id);
+
+        if (!isOnline) {
+          // Offline: use cached data only
+          if (cachedArtifact.data) {
+            setArtifact(cachedArtifact.data);
+            setUsingCachedData(true);
+
+            // Try to get cached site data
+            if (cachedArtifact.data.siteId) {
+              const cachedSite = await OfflineCacheService.getCachedSiteDetails(cachedArtifact.data.siteId);
+              if (cachedSite.data) {
+                setSite(cachedSite.data);
+              }
+            }
+          } else {
+            setError("No cached data available. Please connect to the internet.");
+          }
+        } else {
+          // Online: fetch fresh data and cache it
+          const artifactData = await ArtifactsService.getArtifactById(id);
+          setArtifact(artifactData);
+          setUsingCachedData(false);
+
+          // Cache the artifact data
+          if (artifactData) {
+            await OfflineCacheService.cacheArtifactDetails(id, artifactData);
+          }
+
+          // Fetch site data if artifact has a siteId
+          if (artifactData?.siteId) {
+            try {
+              const siteData = await SitesService.getSiteById(artifactData.siteId);
+              setSite(siteData);
+
+              // Cache the site data too
+              if (siteData) {
+                await OfflineCacheService.cacheSiteDetails(artifactData.siteId, siteData);
+              }
+            } catch (siteError) {
+              console.error("Error fetching site data:", siteError);
+              // Don't set error here, just log it - artifact details can still be shown
+            }
           }
         }
       } catch (error) {
         console.error("Error fetching artifact:", error);
-        setError("Failed to load artifact details");
+
+        // If online fetch fails, try cached data
+        const cachedArtifact = await OfflineCacheService.getCachedArtifactDetails(id);
+        if (cachedArtifact.data) {
+          setArtifact(cachedArtifact.data);
+          setUsingCachedData(true);
+
+          if (cachedArtifact.data.siteId) {
+            const cachedSite = await OfflineCacheService.getCachedSiteDetails(cachedArtifact.data.siteId);
+            if (cachedSite.data) {
+              setSite(cachedSite.data);
+            }
+          }
+        } else {
+          setError("Failed to load artifact details");
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchArtifact();
-  }, [id]);
+  }, [id, isOnline]);
 
   const getSignificanceColor = (significance: string) => {
     switch (significance) {
@@ -207,7 +260,20 @@ const ArtifactDetails = () => {
       <header className="bg-card/95 backdrop-blur-lg px-4 py-4 sm:px-6 lg:px-8 border-b border-border sticky top-0 z-40">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between">
-            <PageHeader showLogo={false} />
+            <div className="flex items-center gap-2">
+              <PageHeader showLogo={false} />
+              {!isOnline && (
+                <Badge variant="outline" className="bg-orange-500/10 text-orange-600 border-orange-500/20">
+                  <WifiOff className="w-3 h-3 mr-1" />
+                  Offline
+                </Badge>
+              )}
+              {usingCachedData && (
+                <Badge variant="outline" className="bg-blue-500/10 text-blue-600 border-blue-500/20">
+                  Cached
+                </Badge>
+              )}
+            </div>
             <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
@@ -217,7 +283,7 @@ const ArtifactDetails = () => {
               >
                 <Share2 className="w-4 h-4" />
               </Button>
-              {canEdit && (
+              {canEdit && isOnline && (
                 <Button
                   variant="ghost"
                   size="icon"
@@ -400,7 +466,7 @@ const ArtifactDetails = () => {
                     <ImageIcon className="w-5 h-5" />
                     3D Digital Image
                   </CardTitle>
-                  {canEdit && (
+                  {canEdit && isOnline && (
                     <div className="flex items-center gap-2">
                       <Button
                         variant="outline"
