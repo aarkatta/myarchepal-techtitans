@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { MapPin, Calendar, Users, FileText, Search, Loader2, Plus, Star } from "lucide-react";
+import { MapPin, Calendar, Users, FileText, Search, Loader2, Plus, Star, WifiOff } from "lucide-react";
 import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { AccountButton } from "@/components/AccountButton";
@@ -16,17 +16,54 @@ import { useArchaeologist } from "@/hooks/use-archaeologist";
 import { ArchaeologistService } from "@/services/archaeologists";
 import { useToast } from "@/components/ui/use-toast";
 import { Timestamp } from "firebase/firestore";
+import { useNetworkStatus } from "@/hooks/use-network";
+import { OfflineCacheService } from "@/services/offline-cache";
+import { parseDate } from "@/lib/utils";
 
 const SiteLists = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { isArchaeologist } = useArchaeologist();
   const { toast } = useToast();
+  const { isOnline } = useNetworkStatus();
   const { sites, loading, error, fetchSites } = useSites();
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredSites, setFilteredSites] = useState<Site[]>([]);
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
   const [settingActiveProject, setSettingActiveProject] = useState(false);
+  const [usingCachedData, setUsingCachedData] = useState(false);
+  const [cachedSites, setCachedSites] = useState<Site[]>([]);
+
+  // Load cached data on mount and when offline
+  useEffect(() => {
+    const loadCachedData = async () => {
+      const { data: cached } = await OfflineCacheService.getCachedSitesList();
+      if (cached) {
+        setCachedSites(cached);
+      }
+    };
+    loadCachedData();
+  }, []);
+
+  // Cache sites when loaded online
+  useEffect(() => {
+    if (sites.length > 0 && isOnline) {
+      OfflineCacheService.cacheSitesList(sites);
+      setUsingCachedData(false);
+    }
+  }, [sites, isOnline]);
+
+  // Use cached data when offline and no fresh data
+  useEffect(() => {
+    if (!isOnline && sites.length === 0 && cachedSites.length > 0) {
+      setUsingCachedData(true);
+    } else if (isOnline && sites.length > 0) {
+      setUsingCachedData(false);
+    }
+  }, [isOnline, sites, cachedSites]);
+
+  // Determine which sites to display
+  const displaySites = usingCachedData ? cachedSites : sites;
 
   // Fetch active project ID for archaeologist
   useEffect(() => {
@@ -46,10 +83,10 @@ const SiteLists = () => {
 
   useEffect(() => {
     if (searchQuery.trim() === "") {
-      setFilteredSites(sites);
+      setFilteredSites(displaySites);
     } else {
       const query = searchQuery.toLowerCase();
-      const filtered = sites.filter(site =>
+      const filtered = displaySites.filter(site =>
         site.name.toLowerCase().includes(query) ||
         site.location?.address?.toLowerCase().includes(query) ||
         site.location?.country?.toLowerCase().includes(query) ||
@@ -58,11 +95,12 @@ const SiteLists = () => {
       );
       setFilteredSites(filtered);
     }
-  }, [searchQuery, sites]);
+  }, [searchQuery, displaySites]);
 
-  const formatDate = (date: Date | Timestamp | undefined) => {
-    if (!date) return "Unknown date";
-    const d = date instanceof Timestamp ? date.toDate() : date;
+  const formatDate = (date: Date | Timestamp | undefined | any) => {
+    const d = parseDate(date);
+    if (!d) return "Unknown date";
+
     const now = new Date();
     const diff = now.getTime() - d.getTime();
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -126,7 +164,8 @@ const SiteLists = () => {
     }
   };
 
-  if (loading) {
+  // Show loading only if we don't have cached data
+  if (loading && cachedSites.length === 0) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
@@ -137,11 +176,14 @@ const SiteLists = () => {
     );
   }
 
-  if (error) {
+  // Show error only if we don't have cached data to fall back on
+  if (error && cachedSites.length === 0) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-500 mb-4">{error}</p>
+          <WifiOff className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+          <p className="text-red-500 mb-2">{error}</p>
+          <p className="text-muted-foreground text-sm mb-4">No cached data available</p>
           <Button onClick={fetchSites} variant="outline">
             Try Again
           </Button>
@@ -157,7 +199,19 @@ const SiteLists = () => {
           <div className="flex items-center justify-between mb-3 sm:mb-4">
             <PageHeader showLogo={false} />
             <div className="flex items-center gap-2">
-              {user && (
+              {/* Offline indicator */}
+              {!isOnline && (
+                <div className="flex items-center gap-1.5 px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded-full text-xs font-medium">
+                  <WifiOff className="w-3 h-3" />
+                  <span>Offline</span>
+                </div>
+              )}
+              {usingCachedData && (
+                <div className="flex items-center gap-1.5 px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-full text-xs font-medium">
+                  <span>Cached</span>
+                </div>
+              )}
+              {user && isOnline && (
                 <Button
                   variant="default"
                   size="sm"
@@ -184,18 +238,18 @@ const SiteLists = () => {
 
           <div className="grid grid-cols-3 gap-2 sm:gap-3 lg:gap-4">
             <Card className="p-2.5 sm:p-3 lg:p-4 border-border/50 text-center bg-gradient-to-br from-primary/5 to-primary/10 hover:shadow-md transition-shadow">
-              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-primary">{sites.length}</p>
+              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-primary">{displaySites.length}</p>
               <p className="text-[10px] sm:text-xs lg:text-sm text-muted-foreground font-medium">Total Sites</p>
             </Card>
             <Card className="p-2.5 sm:p-3 lg:p-4 border-border/50 text-center bg-gradient-to-br from-green-500/5 to-green-500/10 hover:shadow-md transition-shadow">
               <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-green-600">
-                {sites.filter(s => s.status === 'active').length}
+                {displaySites.filter(s => s.status === 'active').length}
               </p>
               <p className="text-[10px] sm:text-xs lg:text-sm text-muted-foreground font-medium">Active</p>
             </Card>
             <Card className="p-2.5 sm:p-3 lg:p-4 border-border/50 text-center bg-gradient-to-br from-orange-500/5 to-orange-500/10 hover:shadow-md transition-shadow">
               <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-orange-600">
-                {sites.filter(s => s.artifacts?.length).reduce((sum, s) => sum + (s.artifacts?.length || 0), 0)}
+                {displaySites.filter(s => s.artifacts?.length).reduce((sum, s) => sum + (s.artifacts?.length || 0), 0)}
               </p>
               <p className="text-[10px] sm:text-xs lg:text-sm text-muted-foreground font-medium">Artifacts</p>
             </Card>

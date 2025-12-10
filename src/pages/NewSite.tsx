@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { MapPin, FileText, Save, Loader2, Upload, Image as ImageIcon, Mic, MicOff } from "lucide-react";
+import { useKeyboard } from "@/hooks/use-keyboard";
 import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { AccountButton } from "@/components/AccountButton";
@@ -27,12 +28,31 @@ const NewSite = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const { isArchaeologist, loading: archaeologistLoading, canCreate } = useArchaeologist();
+  const { hideKeyboard } = useKeyboard();
+  const containerRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [locationLoading, setLocationLoading] = useState(true);
   const [isRecording, setIsRecording] = useState(false);
   const [recognition, setRecognition] = useState<any>(null);
+
+  // Handle tap outside inputs to dismiss keyboard
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleTap = (e: TouchEvent | MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const interactiveElements = ['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON', 'A', 'LABEL'];
+      if (interactiveElements.includes(target.tagName)) return;
+      if (target.closest('button') || target.closest('a') || target.closest('label')) return;
+      hideKeyboard();
+    };
+
+    container.addEventListener('touchstart', handleTap, { passive: true });
+    return () => container.removeEventListener('touchstart', handleTap);
+  }, [hideKeyboard]);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -347,6 +367,7 @@ const NewSite = () => {
 
   return (
     <ResponsiveLayout>
+      <div ref={containerRef}>
       {/* Header */}
       <header className="bg-card/95 backdrop-blur-lg px-4 py-4 sm:px-6 lg:px-8 border-b border-border sticky top-0 z-40">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -658,6 +679,7 @@ const NewSite = () => {
           </div>
         </form>
         )}
+      </div>
     </ResponsiveLayout>
   );
 };

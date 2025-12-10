@@ -57,17 +57,22 @@ export class SitesService {
   // Get all sites
   static async getAllSites(): Promise<Site[]> {
     try {
+      console.log('📍 getAllSites: Starting fetch...');
       if (!sitesCollection || !db) {
-        console.warn('Firebase is not properly initialized');
+        console.warn('📍 getAllSites: Firebase is not properly initialized');
         return [];
       }
+      console.log('📍 getAllSites: Calling getDocs...');
       const querySnapshot: QuerySnapshot<DocumentData> = await getDocs(sitesCollection);
-      return querySnapshot.docs.map(doc => ({
+      console.log('📍 getAllSites: Got', querySnapshot.docs.length, 'documents');
+      const sites = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       } as Site));
+      console.log('📍 getAllSites: Returning sites:', sites.length);
+      return sites;
     } catch (error) {
-      console.error('Error fetching sites:', error);
+      console.error('📍 getAllSites: Error fetching sites:', error);
       throw error;
     }
   }

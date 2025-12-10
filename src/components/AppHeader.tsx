@@ -14,16 +14,18 @@
  */
 
 import { useState, useEffect } from "react";
-import { Bell, User, LogIn, Mail } from "lucide-react";
+import { Bell, User, LogIn, Mail, WifiOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
+import { useNetworkStatus } from "@/hooks/use-network";
 import { ArchaeologistService, Archaeologist } from "@/services/archaeologists";
 
 export const AppHeader = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
+  const { isOnline } = useNetworkStatus();
   const [archaeologistProfile, setArchaeologistProfile] = useState<Archaeologist | null>(null);
 
   // Fetch archaeologist profile when user is available
@@ -95,6 +97,13 @@ export const AppHeader = () => {
 
           {/* Action Buttons - Only show on mobile (desktop has SideNav) */}
           <div className="flex items-center gap-2 md:gap-3 lg:hidden">
+            {/* Offline Indicator */}
+            {!isOnline && (
+              <div className="flex items-center gap-1.5 px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded-full text-xs font-medium animate-pulse">
+                <WifiOff className="w-3 h-3" />
+                <span>Offline</span>
+              </div>
+            )}
             {isAuthenticated ? (
               <button
                 className="p-2 md:p-2.5 hover:bg-muted active:scale-95 rounded-full transition-all duration-200"
@@ -129,6 +138,13 @@ export const AppHeader = () => {
 
           {/* Desktop: Account button */}
           <div className="hidden lg:flex items-center gap-3">
+            {/* Desktop Offline Indicator */}
+            {!isOnline && (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded-full text-sm font-medium animate-pulse">
+                <WifiOff className="w-4 h-4" />
+                <span>Offline Mode</span>
+              </div>
+            )}
             {isAuthenticated && (
               <button
                 className="p-2.5 hover:bg-muted rounded-full transition-all duration-200"

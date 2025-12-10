@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Upload, Image as ImageIcon, MapPin, Calendar, Ruler, Tag, Loader2, Building2, DollarSign, Mic, MicOff, FileText } from "lucide-react";
+import { Upload, Image as ImageIcon, MapPin, Calendar, Ruler, Tag, Loader2, Building2, DollarSign, Mic, MicOff, FileText, WifiOff, Cloud } from "lucide-react";
+import { useKeyboard } from "@/hooks/use-keyboard";
 import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { AccountButton } from "@/components/AccountButton";
@@ -25,6 +26,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { OfflineQueueService } from '@/services/offline-queue';
+import { useOfflineSync } from '@/hooks/use-offline-sync';
 
 // Default values (fallback if Firebase fetch fails)
 const defaultTypes = ["Coin", "Other"];
@@ -38,6 +42,9 @@ const CreateArtifact = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const { isArchaeologist, loading: archaeologistLoading, canCreate } = useArchaeologist();
+  const { isOnline, pendingCount } = useOfflineSync();
+  const { hideKeyboard } = useKeyboard();
+  const containerRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(false);
   const [userSites, setUserSites] = useState<Site[]>([]);
   const [sitesLoading, setSitesLoading] = useState(true);
@@ -82,6 +89,38 @@ const CreateArtifact = () => {
     siteId: "",
     notes: "",
   });
+
+  const takePhoto = async () => {
+  const image = await Camera.getPhoto({
+    quality: 90,
+    allowEditing: false,
+    resultType: CameraResultType.Uri,
+    source: CameraSource.Prompt
+  });
+  if (image.webPath) {
+    setImagePreview(image.webPath);
+    const response = await fetch(image.webPath);
+    const blob = await response.blob();
+    setSelectedImage(new File([blob], "photo.jpg", { type: "image/jpeg" }));
+  }
+};
+
+  // Handle tap outside inputs to dismiss keyboard
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleTap = (e: TouchEvent | MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const interactiveElements = ['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON', 'A', 'LABEL'];
+      if (interactiveElements.includes(target.tagName)) return;
+      if (target.closest('button') || target.closest('a') || target.closest('label')) return;
+      hideKeyboard();
+    };
+
+    container.addEventListener('touchstart', handleTap, { passive: true });
+    return () => container.removeEventListener('touchstart', handleTap);
+  }, [hideKeyboard]);
 
   // Fetch dropdown options from Firebase
   useEffect(() => {
@@ -419,7 +458,7 @@ const CreateArtifact = () => {
         material: formData.material === "Other" && customMaterial ? customMaterial.trim() : formData.material,
         dimensions: formData.dimensions || "",
         location: formData.location,
-        excavationDate: Timestamp.fromDate(new Date(formData.excavationDate)),
+        excavationDate: formData.excavationDate, // Store as string for offline, convert to Timestamp when syncing
         condition: formData.condition === "Other" && customCondition ? customCondition.trim() : formData.condition,
         description: formData.description,
         findContext: formData.findContext || "",
@@ -439,6 +478,35 @@ const CreateArtifact = () => {
       if (model3DForSale && model3DPrice) {
         artifactData.model3DPrice = parseFloat(model3DPrice);
       }
+
+      // Check if offline - queue for later sync
+      if (!isOnline) {
+        console.log('📴 Offline: Queueing artifact for later sync...');
+
+        // Convert image to blob for offline storage
+        let imageBlob: Blob | undefined;
+        if (selectedImage) {
+          imageBlob = selectedImage;
+        }
+
+        await OfflineQueueService.queueArtifact(artifactData, imageBlob);
+
+        toast({
+          title: "Saved Offline",
+          description: "Artifact will be uploaded when you're back online.",
+        });
+
+        // Navigate to artifacts page
+        setTimeout(() => {
+          navigate("/artifacts");
+        }, 1500);
+
+        return;
+      }
+
+      // Online: Create artifact directly
+      // Convert date string to Timestamp for Firestore
+      artifactData.excavationDate = Timestamp.fromDate(new Date(formData.excavationDate));
 
       const artifactId = await ArtifactsService.createArtifact(artifactData);
 
@@ -496,10 +564,29 @@ const CreateArtifact = () => {
 
   return (
     <ResponsiveLayout>
+      <div ref={containerRef}>
       <header className="bg-card/95 backdrop-blur-lg px-4 py-4 sm:px-6 lg:px-8 border-b border-border sticky top-0 z-40">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <PageHeader showLogo={false} />
-          <AccountButton />
+          <div className="flex items-center gap-3">
+            {/* Offline/Online Indicator */}
+            {!isOnline && (
+              <div className="flex items-center gap-1.5 px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded-full text-xs font-medium">
+                <WifiOff className="w-3 h-3" />
+                <span>Offline</span>
+                {pendingCount > 0 && (
+                  <span className="bg-amber-500 text-white px-1.5 rounded-full text-xs">{pendingCount}</span>
+                )}
+              </div>
+            )}
+            {isOnline && pendingCount > 0 && (
+              <div className="flex items-center gap-1.5 px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-full text-xs font-medium">
+                <Cloud className="w-3 h-3 animate-pulse" />
+                <span>Syncing {pendingCount}</span>
+              </div>
+            )}
+            <AccountButton />
+          </div>
         </div>
       </header>
 
@@ -1164,6 +1251,7 @@ const CreateArtifact = () => {
           </form>
         </div>
         )}
+      </div>
     </ResponsiveLayout>
   );
 };

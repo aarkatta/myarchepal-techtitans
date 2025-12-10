@@ -5,7 +5,7 @@
  * - QueryClientProvider: React Query for data fetching
  * - TooltipProvider: Tooltip UI component provider
  * - AuthProvider: Authentication context provider (wraps entire app)
- * - BrowserRouter: React Router for navigation
+ * - HashRouter: React Router for navigation (Capacitor compatible)
  *
  * Routes:
  * - Public routes: /, /authentication/sign-in, /authentication/sign-up
@@ -16,7 +16,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
+import { useCapacitorInit } from "@/hooks/use-capacitor";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ChatProvider } from "@/hooks/use-chat";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -59,12 +60,17 @@ import DigitalDiary from "./pages/DigitalDiary";
 import ChatArea from "./pages/ChatArea";
 import AboutUs from "./pages/AboutUs";
 import SiteTimeMachine from "./pages/SiteTimeMachine";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import NotFound from "./pages/NotFound";
 
 // Create React Query client instance
 const queryClient = new QueryClient();
 
-const App = () => (
+const App = () => {
+  // Initialize Capacitor plugins (status bar, splash screen, keyboard)
+  useCapacitorInit();
+
+  return (
   // React Query provider for data fetching
   <QueryClientProvider client={queryClient}>
     {/* Tooltip provider for UI components */}
@@ -76,8 +82,8 @@ const App = () => (
           {/* Toast notification components */}
           <Toaster />
           <Sonner />
-          {/* React Router for navigation */}
-          <BrowserRouter>
+          {/* React Router for navigation - HashRouter for Capacitor compatibility */}
+          <HashRouter>
             <Routes>
             {/* Public routes */}
             <Route path="/" element={<Index />} />
@@ -104,6 +110,7 @@ const App = () => (
             <Route path="/digital-diary" element={<DigitalDiary />} />
             <Route path="/about-us" element={<AboutUs />} />
             <Route path="/site-time-machine" element={<SiteTimeMachine />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/chat" element={
               <ProtectedRoute>
                 <ChatArea />
@@ -170,11 +177,12 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
             </Routes>
-          </BrowserRouter>
+          </HashRouter>
         </ChatProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;
