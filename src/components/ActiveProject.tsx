@@ -9,6 +9,7 @@ import { ArchaeologistService } from "@/services/archaeologists";
 import { SiteConditions } from "@/components/SiteConditions";
 import { Timestamp } from "firebase/firestore";
 import { useState, useEffect } from "react";
+import { parseDate } from "@/lib/utils";
 
 export const ActiveProject = () => {
   const navigate = useNavigate();
@@ -48,8 +49,8 @@ export const ActiveProject = () => {
       const latestSites = sites
         .filter(site => site.id !== activeProjectId)
         .sort((a, b) => {
-          const dateA = a.createdAt instanceof Timestamp ? a.createdAt.toDate() : a.createdAt;
-          const dateB = b.createdAt instanceof Timestamp ? b.createdAt.toDate() : b.createdAt;
+          const dateA = parseDate(a.createdAt);
+          const dateB = parseDate(b.createdAt);
           return (dateB?.getTime() || 0) - (dateA?.getTime() || 0);
         })
         .slice(0, 2);
@@ -60,8 +61,8 @@ export const ActiveProject = () => {
       // Show 2 most recent sites
       return sites
         .sort((a, b) => {
-          const dateA = a.createdAt instanceof Timestamp ? a.createdAt.toDate() : a.createdAt;
-          const dateB = b.createdAt instanceof Timestamp ? b.createdAt.toDate() : b.createdAt;
+          const dateA = parseDate(a.createdAt);
+          const dateB = parseDate(b.createdAt);
           return (dateB?.getTime() || 0) - (dateA?.getTime() || 0);
         })
         .slice(0, 2);
@@ -70,9 +71,9 @@ export const ActiveProject = () => {
 
   const displaySites = getDisplaySites();
 
-  const formatDate = (date: Date | Timestamp | undefined) => {
-    if (!date) return "Unknown date";
-    const d = date instanceof Timestamp ? date.toDate() : date;
+  const formatDate = (date: Date | Timestamp | undefined | any) => {
+    const d = parseDate(date);
+    if (!d) return "Unknown date";
     return d.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",

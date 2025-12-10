@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, MapPin, Calendar } from "lucide-react";
 import { ArtifactsService, Artifact } from "@/services/artifacts";
 import { Timestamp } from "firebase/firestore";
+import { parseDate } from "@/lib/utils";
 
 export const RecentFinds = () => {
   const navigate = useNavigate();
@@ -30,15 +31,15 @@ export const RecentFinds = () => {
   // Get the 4 most recently created artifacts (for 4-col layout on ultra-wide)
   const recentArtifacts = artifacts
     .sort((a, b) => {
-      const dateA = a.createdAt instanceof Timestamp ? a.createdAt.toDate() : a.createdAt;
-      const dateB = b.createdAt instanceof Timestamp ? b.createdAt.toDate() : b.createdAt;
+      const dateA = parseDate(a.createdAt);
+      const dateB = parseDate(b.createdAt);
       return (dateB?.getTime() || 0) - (dateA?.getTime() || 0);
     })
     .slice(0, 4);
 
-  const formatDate = (date: Date | Timestamp | undefined) => {
-    if (!date) return "Unknown date";
-    const d = date instanceof Timestamp ? date.toDate() : date;
+  const formatDate = (date: Date | Timestamp | undefined | any) => {
+    const d = parseDate(date);
+    if (!d) return "Unknown date";
     const now = new Date();
     const diff = now.getTime() - d.getTime();
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));

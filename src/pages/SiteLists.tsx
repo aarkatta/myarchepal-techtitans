@@ -18,6 +18,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Timestamp } from "firebase/firestore";
 import { useNetworkStatus } from "@/hooks/use-network";
 import { OfflineCacheService } from "@/services/offline-cache";
+import { parseDate } from "@/lib/utils";
 
 const SiteLists = () => {
   const navigate = useNavigate();
@@ -96,9 +97,10 @@ const SiteLists = () => {
     }
   }, [searchQuery, displaySites]);
 
-  const formatDate = (date: Date | Timestamp | undefined) => {
-    if (!date) return "Unknown date";
-    const d = date instanceof Timestamp ? date.toDate() : date;
+  const formatDate = (date: Date | Timestamp | undefined | any) => {
+    const d = parseDate(date);
+    if (!d) return "Unknown date";
+
     const now = new Date();
     const diff = now.getTime() - d.getTime();
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));

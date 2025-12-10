@@ -60,6 +60,7 @@ import DigitalDiary from "./pages/DigitalDiary";
 import ChatArea from "./pages/ChatArea";
 import AboutUs from "./pages/AboutUs";
 import SiteTimeMachine from "./pages/SiteTimeMachine";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import NotFound from "./pages/NotFound";
 
 // Create React Query client instance
@@ -109,6 +110,7 @@ const App = () => {
             <Route path="/digital-diary" element={<DigitalDiary />} />
             <Route path="/about-us" element={<AboutUs />} />
             <Route path="/site-time-machine" element={<SiteTimeMachine />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/chat" element={
               <ProtectedRoute>
                 <ChatArea />

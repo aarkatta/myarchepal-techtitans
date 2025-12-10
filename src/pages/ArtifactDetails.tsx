@@ -16,6 +16,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Timestamp } from "firebase/firestore";
 import { useNetworkStatus } from "@/hooks/use-network";
 import { OfflineCacheService } from "@/services/offline-cache";
+import { parseDate } from "@/lib/utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,8 +42,21 @@ const ArtifactDetails = () => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleting3DImage, setDeleting3DImage] = useState(false);
   const [usingCachedData, setUsingCachedData] = useState(false);
+  const [networkChecked, setNetworkChecked] = useState(false);
+
+  // Wait for network status to be determined before fetching
+  useEffect(() => {
+    // Small delay to allow network status to settle
+    const timer = setTimeout(() => {
+      setNetworkChecked(true);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
+    // Don't fetch until network status is determined
+    if (!networkChecked) return;
+
     const fetchArtifact = async () => {
       if (!id) {
         setError("Artifact ID not found");
@@ -52,6 +66,7 @@ const ArtifactDetails = () => {
 
       try {
         setLoading(true);
+        setError(null);
 
         // Try to get cached data first
         const cachedArtifact = await OfflineCacheService.getCachedArtifactDetails(id);
@@ -70,7 +85,7 @@ const ArtifactDetails = () => {
               }
             }
           } else {
-            setError("No cached data available. Please connect to the internet.");
+            setError("Artifact not available offline. Please view this artifact while online first to cache it.");
           }
         } else {
           // Online: fetch fresh data and cache it
@@ -103,18 +118,22 @@ const ArtifactDetails = () => {
         console.error("Error fetching artifact:", error);
 
         // If online fetch fails, try cached data
-        const cachedArtifact = await OfflineCacheService.getCachedArtifactDetails(id);
-        if (cachedArtifact.data) {
-          setArtifact(cachedArtifact.data);
-          setUsingCachedData(true);
+        try {
+          const cachedArtifact = await OfflineCacheService.getCachedArtifactDetails(id);
+          if (cachedArtifact.data) {
+            setArtifact(cachedArtifact.data);
+            setUsingCachedData(true);
 
-          if (cachedArtifact.data.siteId) {
-            const cachedSite = await OfflineCacheService.getCachedSiteDetails(cachedArtifact.data.siteId);
-            if (cachedSite.data) {
-              setSite(cachedSite.data);
+            if (cachedArtifact.data.siteId) {
+              const cachedSite = await OfflineCacheService.getCachedSiteDetails(cachedArtifact.data.siteId);
+              if (cachedSite.data) {
+                setSite(cachedSite.data);
+              }
             }
+          } else {
+            setError("Failed to load artifact details");
           }
-        } else {
+        } catch {
           setError("Failed to load artifact details");
         }
       } finally {
@@ -123,7 +142,7 @@ const ArtifactDetails = () => {
     };
 
     fetchArtifact();
-  }, [id, isOnline]);
+  }, [id, isOnline, networkChecked]);
 
   const getSignificanceColor = (significance: string) => {
     switch (significance) {
@@ -146,9 +165,10 @@ const ArtifactDetails = () => {
     }
   };
 
-  const formatDate = (date: Date | Timestamp | undefined) => {
-    if (!date) return "Unknown date";
-    const d = date instanceof Timestamp ? date.toDate() : date;
+  const formatDate = (date: Date | Timestamp | undefined | any) => {
+    const d = parseDate(date);
+    if (!d) return "Unknown date";
+
     return d.toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",

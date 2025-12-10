@@ -14,6 +14,7 @@ import { useArtifacts } from "@/hooks/use-artifacts";
 import { useAuth } from "@/hooks/use-auth";
 import { Timestamp } from "firebase/firestore";
 import { createEmojiElement, getArtifactEmoji } from "@/lib/sanitize";
+import { parseDate } from "@/lib/utils";
 
 const periods = ["All", "Imperial Roman", "Roman", "Late Roman", "Byzantine", "Medieval"];
 const types = ["All", "Coin", "Ceramic", "Weapon", "Glass", "Personal Ornament", "Sculpture"];
@@ -45,12 +46,12 @@ const Artifacts = () => {
   const sortedArtifacts = [...filteredArtifacts].sort((a, b) => {
     switch (sortBy) {
       case "recent":
-        const dateA = a.excavationDate instanceof Timestamp ? a.excavationDate.toDate() : a.excavationDate;
-        const dateB = b.excavationDate instanceof Timestamp ? b.excavationDate.toDate() : b.excavationDate;
+        const dateA = parseDate(a.excavationDate);
+        const dateB = parseDate(b.excavationDate);
         return (dateB?.getTime() || 0) - (dateA?.getTime() || 0);
       case "oldest":
-        const oldDateA = a.excavationDate instanceof Timestamp ? a.excavationDate.toDate() : a.excavationDate;
-        const oldDateB = b.excavationDate instanceof Timestamp ? b.excavationDate.toDate() : b.excavationDate;
+        const oldDateA = parseDate(a.excavationDate);
+        const oldDateB = parseDate(b.excavationDate);
         return (oldDateA?.getTime() || 0) - (oldDateB?.getTime() || 0);
       case "name":
         return a.name.localeCompare(b.name);
@@ -62,9 +63,9 @@ const Artifacts = () => {
     }
   });
 
-  const formatDate = (date: Date | Timestamp | undefined) => {
-    if (!date) return "Unknown date";
-    const d = date instanceof Timestamp ? date.toDate() : date;
+  const formatDate = (date: Date | Timestamp | undefined | any) => {
+    const d = parseDate(date);
+    if (!d) return "Unknown date";
     return d.toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",

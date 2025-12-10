@@ -133,39 +133,6 @@ const CheckoutMerchandise = () => {
     }));
   };
 
-  // Auto-fill with demo data for testing purposes
-  const fillDemoData = () => {
-    setPurchaseData({
-      quantity: 1,
-      cardNumber: "4532 1234 5678 9010",
-      cardName: "Sarah Johnson",
-      expiryDate: "12/25",
-      cvv: "123",
-      address: "456 Oak Avenue",
-      city: "Los Angeles",
-      state: "CA",
-      zipCode: "90001",
-      country: "USA",
-      billingAddress: "789 Pine Street",
-      billingCity: "San Francisco",
-      billingState: "CA",
-      billingZipCode: "94102",
-      billingCountry: "USA"
-    });
-
-    // Uncheck the same as shipping if it was checked
-    setSameAsShipping(false);
-
-    // If it's a gift, add a gift message
-    if (isGift) {
-      setGiftMessage("Wishing you all the best! Enjoy this special gift from our archaeological collection.");
-    }
-
-    toast({
-      title: "Demo Data Loaded",
-      description: "Form filled with sample data for testing",
-    });
-  };
 
   const validateForm = () => {
     if (!purchaseData.cardNumber || !purchaseData.cardName || !purchaseData.expiryDate || !purchaseData.cvv) {
@@ -458,10 +425,9 @@ const CheckoutMerchandise = () => {
                   <Input
                     id="cardNumber"
                     name="cardNumber"
-                    placeholder="1234 5678 9012 3456 (Click to fill demo data)"
+                    placeholder="1234 5678 9012 3456"
                     value={purchaseData.cardNumber}
                     onChange={handleInputChange}
-                    onClick={fillDemoData}
                     maxLength={19}
                     required
                   />

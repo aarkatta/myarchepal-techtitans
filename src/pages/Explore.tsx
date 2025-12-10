@@ -12,6 +12,7 @@ import { Site } from "@/services/sites";
 import { Timestamp } from "firebase/firestore";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { parseDate } from "@/lib/utils";
 
 interface Article {
   id?: string;
@@ -59,9 +60,9 @@ const Explore = () => {
     fetchArticles();
   }, []);
 
-  const formatDate = (date: Date | Timestamp | undefined) => {
-    if (!date) return "Unknown date";
-    const d = date instanceof Timestamp ? date.toDate() : date;
+  const formatDate = (date: Date | Timestamp | undefined | any) => {
+    const d = parseDate(date);
+    if (!d) return "Unknown date";
     const now = new Date();
     const diff = now.getTime() - d.getTime();
     const hours = Math.floor(diff / (1000 * 60 * 60));
@@ -85,9 +86,9 @@ const Explore = () => {
   };
 
   // Filter items from last 24 hours
-  const isWithinLast24Hours = (date: Date | Timestamp | undefined) => {
-    if (!date) return false;
-    const d = date instanceof Timestamp ? date.toDate() : date;
+  const isWithinLast24Hours = (date: Date | Timestamp | undefined | any) => {
+    const d = parseDate(date);
+    if (!d) return false;
     const now = new Date();
     const diff = now.getTime() - d.getTime();
     const hours = Math.floor(diff / (1000 * 60 * 60));
@@ -98,43 +99,43 @@ const Explore = () => {
   const recentSites = sites
     .filter(site => isWithinLast24Hours(site.createdAt))
     .sort((a, b) => {
-      const dateA = a.createdAt instanceof Timestamp ? a.createdAt.toDate() : a.createdAt;
-      const dateB = b.createdAt instanceof Timestamp ? b.createdAt.toDate() : b.createdAt;
+      const dateA = parseDate(a.createdAt);
+      const dateB = parseDate(b.createdAt);
       return (dateB?.getTime() || 0) - (dateA?.getTime() || 0);
     });
 
   const recentArtifacts = artifacts
     .filter(artifact => isWithinLast24Hours(artifact.createdAt))
     .sort((a, b) => {
-      const dateA = a.createdAt instanceof Timestamp ? a.createdAt.toDate() : a.createdAt;
-      const dateB = b.createdAt instanceof Timestamp ? b.createdAt.toDate() : b.createdAt;
+      const dateA = parseDate(a.createdAt);
+      const dateB = parseDate(b.createdAt);
       return (dateB?.getTime() || 0) - (dateA?.getTime() || 0);
     });
 
   const recentArticles = articles
     .filter(article => isWithinLast24Hours(article.createdAt))
     .sort((a, b) => {
-      const dateA = a.createdAt instanceof Timestamp ? a.createdAt.toDate() : a.createdAt;
-      const dateB = b.createdAt instanceof Timestamp ? b.createdAt.toDate() : b.createdAt;
+      const dateA = parseDate(a.createdAt);
+      const dateB = parseDate(b.createdAt);
       return (dateB?.getTime() || 0) - (dateA?.getTime() || 0);
     });
 
   // If nothing in last 24 hours, show latest
   const displaySites = recentSites.length > 0 ? recentSites : sites.slice(0, 1).sort((a, b) => {
-    const dateA = a.createdAt instanceof Timestamp ? a.createdAt.toDate() : a.createdAt;
-    const dateB = b.createdAt instanceof Timestamp ? b.createdAt.toDate() : b.createdAt;
+    const dateA = parseDate(a.createdAt);
+    const dateB = parseDate(b.createdAt);
     return (dateB?.getTime() || 0) - (dateA?.getTime() || 0);
   });
 
   const displayArtifacts = recentArtifacts.length > 0 ? recentArtifacts : artifacts.slice(0, 1).sort((a, b) => {
-    const dateA = a.createdAt instanceof Timestamp ? a.createdAt.toDate() : a.createdAt;
-    const dateB = b.createdAt instanceof Timestamp ? b.createdAt.toDate() : b.createdAt;
+    const dateA = parseDate(a.createdAt);
+    const dateB = parseDate(b.createdAt);
     return (dateB?.getTime() || 0) - (dateA?.getTime() || 0);
   });
 
   const displayArticles = recentArticles.length > 0 ? recentArticles : articles.slice(0, 1).sort((a, b) => {
-    const dateA = a.createdAt instanceof Timestamp ? a.createdAt.toDate() : a.createdAt;
-    const dateB = b.createdAt instanceof Timestamp ? b.createdAt.toDate() : b.createdAt;
+    const dateA = parseDate(a.createdAt);
+    const dateB = parseDate(b.createdAt);
     return (dateB?.getTime() || 0) - (dateA?.getTime() || 0);
   });
 

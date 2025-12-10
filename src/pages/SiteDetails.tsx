@@ -16,6 +16,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Timestamp } from "firebase/firestore";
 import { useNetworkStatus } from "@/hooks/use-network";
 import { OfflineCacheService } from "@/services/offline-cache";
+import { parseDate } from "@/lib/utils";
 
 const SiteDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -30,8 +31,21 @@ const SiteDetails = () => {
   const [siteArtifacts, setSiteArtifacts] = useState<Artifact[]>([]);
   const [artifactsLoading, setArtifactsLoading] = useState(false);
   const [usingCachedData, setUsingCachedData] = useState(false);
+  const [networkChecked, setNetworkChecked] = useState(false);
+
+  // Wait for network status to be determined before fetching
+  useEffect(() => {
+    // Small delay to allow network status to settle
+    const timer = setTimeout(() => {
+      setNetworkChecked(true);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
+    // Don't fetch until network status is determined
+    if (!networkChecked) return;
+
     const fetchSite = async () => {
       if (!id) {
         setError("Site ID not found");
@@ -41,6 +55,7 @@ const SiteDetails = () => {
 
       try {
         setLoading(true);
+        setError(null);
 
         // Try to get cached data first
         const { data: cachedSite } = await OfflineCacheService.getCachedSiteDetails(id);
@@ -71,22 +86,36 @@ const SiteDetails = () => {
             setSite(cachedSite);
             setUsingCachedData(true);
           } else {
-            setError("Site not available offline");
+            setError("Site not available offline. Please view this site while online first to cache it.");
           }
         }
       } catch (error) {
         console.error("Error fetching site:", error);
-        setError("Failed to load site details");
+        // Try cached data as last resort
+        try {
+          const { data: cachedSite } = await OfflineCacheService.getCachedSiteDetails(id);
+          if (cachedSite) {
+            setSite(cachedSite);
+            setUsingCachedData(true);
+          } else {
+            setError("Failed to load site details");
+          }
+        } catch {
+          setError("Failed to load site details");
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchSite();
-  }, [id, isOnline]);
+  }, [id, isOnline, networkChecked]);
 
   // Fetch artifacts for this site
   useEffect(() => {
+    // Don't fetch until network status is determined
+    if (!networkChecked) return;
+
     const fetchSiteArtifacts = async () => {
       if (!id) return;
 
@@ -125,11 +154,12 @@ const SiteDetails = () => {
     };
 
     fetchSiteArtifacts();
-  }, [id, isOnline]);
+  }, [id, isOnline, networkChecked]);
 
-  const formatDate = (date: Date | Timestamp | undefined) => {
-    if (!date) return "Unknown date";
-    const d = date instanceof Timestamp ? date.toDate() : date;
+  const formatDate = (date: Date | Timestamp | undefined | any) => {
+    const d = parseDate(date);
+    if (!d) return "Unknown date";
+
     return d.toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
