@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Mail, Phone, MapPin, Send, Loader2 } from "lucide-react";
+import { Mail, Send, Loader2 } from "lucide-react";
 import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -115,32 +115,14 @@ const ContactUs = () => {
             <CardHeader>
               <CardTitle className="text-lg">Get in Touch</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent>
               <div className="flex items-center gap-3">
                 <div className="bg-primary/10 p-2 rounded-lg">
                   <Mail className="w-5 h-5 text-primary" />
                 </div>
                 <div>
                   <p className="text-sm font-medium">Email</p>
-                  <p className="text-sm text-muted-foreground">contact@archepal.com</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="bg-primary/10 p-2 rounded-lg">
-                  <Phone className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Phone</p>
-                  <p className="text-sm text-muted-foreground">+1 (555) 123-4567</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="bg-primary/10 p-2 rounded-lg">
-                  <MapPin className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Address</p>
-                  <p className="text-sm text-muted-foreground">Archaeological Research Center, University Campus</p>
+                  <p className="text-sm text-muted-foreground">fllseason2526@gmail.com</p>
                 </div>
               </div>
             </CardContent>

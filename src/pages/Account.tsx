@@ -14,13 +14,24 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Mail, Settings, Bell, Shield, HelpCircle, LogOut, Building2, Award, Calendar, Loader2, UserPlus, MessageSquare, BookOpen } from "lucide-react";
+import { Mail, Settings, Bell, Shield, HelpCircle, LogOut, Building2, Award, Calendar, Loader2, UserPlus, MessageSquare, BookOpen, Trash2 } from "lucide-react";
 import { ResponsiveLayout } from "@/components/ResponsiveLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
@@ -30,14 +41,16 @@ import { Timestamp } from "firebase/firestore";
 const Account = () => {
   // React Router hook for navigation
   const navigate = useNavigate();
-  // Auth context hook to get current user and logout function
-  const { user, logout } = useAuth();
+  // Auth context hook to get current user and logout/delete functions
+  const { user, logout, deleteAccount } = useAuth();
   // Toast notification hook for user feedback
   const { toast } = useToast();
   // State for archaeologist profile data
   const [archaeologistProfile, setArchaeologistProfile] = useState<Archaeologist | null>(null);
   // Loading state for profile data
   const [profileLoading, setProfileLoading] = useState(false);
+  // Loading state for account deletion
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   /**
    * Fetch archaeologist profile data when user is available
@@ -84,6 +97,49 @@ const Account = () => {
       description: "You have been successfully signed out.",
     });
     navigate("/authentication/sign-in");  // Redirect to sign-in page
+  };
+
+  /**
+   * Handle account deletion
+   * Deletes user data from Firestore, then deletes Firebase Auth account
+   */
+  const handleDeleteAccount = async () => {
+    if (!user?.uid) return;
+
+    setDeleteLoading(true);
+    try {
+      // First, delete user data from Firestore
+      await ArchaeologistService.deleteUserData(user.uid);
+
+      // Then delete the Firebase Auth account
+      await deleteAccount();
+
+      toast({
+        title: "Account Deleted",
+        description: "Your account has been permanently deleted.",
+      });
+
+      navigate("/authentication/sign-in");
+    } catch (error: any) {
+      console.error("Error deleting account:", error);
+
+      // Handle specific Firebase errors
+      if (error.code === "auth/requires-recent-login") {
+        toast({
+          title: "Re-authentication Required",
+          description: "Please sign out and sign in again before deleting your account.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to delete account. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } finally {
+      setDeleteLoading(false);
+    }
   };
 
   // Redirect to sign-in if not authenticated
@@ -207,22 +263,34 @@ const Account = () => {
             <h3 className="text-sm font-semibold text-foreground px-1">Settings</h3>
             
             <Card className="border-border divide-y divide-border">
-              <button className="w-full p-4 flex items-center gap-3 hover:bg-muted/50 transition-colors">
+              <button
+                onClick={() => toast({ title: "Coming Soon", description: "General Settings will be available in a future update." })}
+                className="w-full p-4 flex items-center gap-3 hover:bg-muted/50 transition-colors"
+              >
                 <Settings className="w-5 h-5 text-muted-foreground" />
                 <span className="flex-1 text-left text-foreground">General Settings</span>
               </button>
-              
-              <button className="w-full p-4 flex items-center gap-3 hover:bg-muted/50 transition-colors">
+
+              <button
+                onClick={() => toast({ title: "Coming Soon", description: "Notification settings will be available in a future update." })}
+                className="w-full p-4 flex items-center gap-3 hover:bg-muted/50 transition-colors"
+              >
                 <Bell className="w-5 h-5 text-muted-foreground" />
                 <span className="flex-1 text-left text-foreground">Notifications</span>
               </button>
-              
-              <button className="w-full p-4 flex items-center gap-3 hover:bg-muted/50 transition-colors">
+
+              <button
+                onClick={() => toast({ title: "Coming Soon", description: "Privacy & Security settings will be available in a future update." })}
+                className="w-full p-4 flex items-center gap-3 hover:bg-muted/50 transition-colors"
+              >
                 <Shield className="w-5 h-5 text-muted-foreground" />
                 <span className="flex-1 text-left text-foreground">Privacy & Security</span>
               </button>
-              
-              <button className="w-full p-4 flex items-center gap-3 hover:bg-muted/50 transition-colors">
+
+              <button
+                onClick={() => toast({ title: "Coming Soon", description: "Help & Support will be available in a future update." })}
+                className="w-full p-4 flex items-center gap-3 hover:bg-muted/50 transition-colors"
+              >
                 <HelpCircle className="w-5 h-5 text-muted-foreground" />
                 <span className="flex-1 text-left text-foreground">Help & Support</span>
               </button>
@@ -246,13 +314,47 @@ const Account = () => {
           </div>
 
           <Card className="border-border">
-            <button 
+            <button
               onClick={handleLogout}
               className="w-full p-4 flex items-center gap-3 hover:bg-muted/50 transition-colors text-destructive"
             >
               <LogOut className="w-5 h-5" />
               <span className="flex-1 text-left font-medium">Log Out</span>
             </button>
+          </Card>
+
+          <Card className="border-destructive/50">
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <button
+                  className="w-full p-4 flex items-center gap-3 hover:bg-destructive/10 transition-colors text-destructive"
+                  disabled={deleteLoading}
+                >
+                  <Trash2 className="w-5 h-5" />
+                  <span className="flex-1 text-left font-medium">
+                    {deleteLoading ? "Deleting..." : "Delete Account"}
+                  </span>
+                </button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete Account</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete your
+                    account and remove all your data from our servers.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDeleteAccount}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Delete Account
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </Card>
 
           <div className="text-center text-xs text-muted-foreground pt-4">

@@ -52,10 +52,10 @@ const CreateMerchandise = () => {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    price: "100",
+    price: "",
     currency: "USD",
-    quantity: "10",
-    category: "Other",
+    quantity: "",
+    category: "",
   });
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {

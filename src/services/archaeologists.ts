@@ -113,6 +113,35 @@ export class ArchaeologistService {
     }
   }
 
+  // Delete all user data for account deletion
+  // This should be called before deleting the Firebase Auth user
+  static async deleteUserData(uid: string): Promise<void> {
+    try {
+      if (!db) throw new Error('Firestore not initialized');
+
+      // Get archaeologist profile to check for profile picture
+      const profile = await this.getArchaeologistProfile(uid);
+
+      // Delete profile picture from Storage if exists
+      if (profile?.photoURL && storage) {
+        try {
+          await this.deleteProfilePicture(profile.photoURL);
+        } catch (error) {
+          console.warn('Could not delete profile picture:', error);
+        }
+      }
+
+      // Delete archaeologist document
+      const archaeologistDoc = doc(db, 'archaeologists', uid);
+      await deleteDoc(archaeologistDoc);
+
+      console.log('✅ User data deleted for:', uid);
+    } catch (error) {
+      console.error('❌ Error deleting user data:', error);
+      throw error;
+    }
+  }
+
   // Get archaeologist profile by UID
   static async getArchaeologistProfile(uid: string): Promise<Archaeologist | null> {
     try {
@@ -140,8 +169,18 @@ export class ArchaeologistService {
     try {
       if (!db) throw new Error('Firestore not initialized');
 
+      // Filter out undefined values as Firestore doesn't accept them
+      const filteredUpdates = Object.fromEntries(
+        Object.entries(updates).filter(([_, value]) => value !== undefined)
+      );
+
+      if (Object.keys(filteredUpdates).length === 0) {
+        console.log('No valid updates to apply');
+        return;
+      }
+
       const archaeologistDoc = doc(db, 'archaeologists', uid);
-      await setDoc(archaeologistDoc, updates, { merge: true });
+      await setDoc(archaeologistDoc, filteredUpdates, { merge: true });
 
       console.log('✅ Archaeologist profile updated:', uid);
     } catch (error) {
