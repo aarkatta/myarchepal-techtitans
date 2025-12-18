@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/hooks/use-toast";
 
 const analyses = [
   { 
@@ -37,6 +38,7 @@ const analyses = [
 
 const Analysis = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -126,7 +128,10 @@ const Analysis = () => {
             ))}
           </div>
 
-          <Button className="w-full">
+          <Button
+            className="w-full"
+            onClick={() => toast({ title: "Coming Soon", description: "Request New Analysis will be available in a future update." })}
+          >
             <FlaskConical className="w-4 h-4 mr-2" />
             Request New Analysis
           </Button>

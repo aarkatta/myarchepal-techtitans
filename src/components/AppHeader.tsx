@@ -127,7 +127,7 @@ export const AppHeader = () => {
                   variant="default"
                   size="sm"
                   onClick={() => navigate("/authentication/sign-in")}
-                  className="gap-1.5 text-body-sm px-2.5 sm:px-3 md:px-4 h-8 md:h-9 shadow-sm font-medium"
+                  className="gap-1.5 text-body-sm px-2.5 sm:px-3 md:px-4 h-8 md:h-9 shadow-sm font-medium text-white"
                 >
                   <LogIn className="w-3.5 h-3.5 md:w-4 md:h-4" />
                   <span className="sm:inline">Sign In</span>

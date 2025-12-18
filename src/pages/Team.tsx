@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 
 const teamMembers = [
   {
@@ -51,6 +52,7 @@ const teamMembers = [
 
 const Team = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -76,7 +78,11 @@ const Team = () => {
             </Button>
             <h1 className="text-xl font-semibold text-foreground">Team</h1>
           </div>
-          <Button size="sm" className="gap-2">
+          <Button
+            size="sm"
+            className="gap-2"
+            onClick={() => toast({ title: "Coming Soon", description: "Team invitations will be available in a future update." })}
+          >
             <UserPlus className="w-4 h-4" />
             Invite
           </Button>
@@ -139,7 +145,12 @@ const Team = () => {
                   </div>
                 </div>
 
-                <Button variant="outline" size="sm" className="w-full h-11">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full h-11"
+                  onClick={() => toast({ title: "Coming Soon", description: "Messaging will be available in a future update." })}
+                >
                   <MessageSquare className="w-4 h-4 mr-2" />
                   Message
                 </Button>

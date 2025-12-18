@@ -138,12 +138,12 @@ export class MerchandiseService {
 
           const newItem: Merchandise = {
             name: name,
-            description: 'Unique archaeological merchandise',
+            description: '',
             imageUrl: url,
-            price: 100,
+            price: 0,
             currency: 'USD',
-            quantity: 10,
-            category: 'Gift Shop',
+            quantity: 0,
+            category: '',
             createdAt: Timestamp.now(),
             updatedAt: Timestamp.now()
           };

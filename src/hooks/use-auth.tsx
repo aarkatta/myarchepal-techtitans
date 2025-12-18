@@ -14,7 +14,7 @@
  */
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User as FirebaseUser, onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
+import { User as FirebaseUser, onAuthStateChanged, signOut as firebaseSignOut, deleteUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 
 /**
@@ -26,6 +26,7 @@ interface AuthContextType {
   isLoading: boolean;                    // Whether auth state is being loaded
   refreshUser: () => void;               // Function to refresh user from Firebase
   logout: () => Promise<void>;           // Function to sign out current user
+  deleteAccount: () => Promise<void>;    // Function to permanently delete user account
 }
 
 // Create React context for authentication
@@ -71,6 +72,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  /**
+   * Delete current user account permanently
+   * Removes user from Firebase Authentication
+   * Note: Firestore data should be deleted before calling this
+   */
+  const deleteAccount = async () => {
+    try {
+      if (auth?.currentUser) {
+        await deleteUser(auth.currentUser);
+        console.log('✅ User account deleted successfully');
+      }
+    } catch (error) {
+      console.error('❌ Error deleting account:', error);
+      throw error;
+    }
+  };
+
   // Listen to Firebase auth state changes
   useEffect(() => {
     if (!auth) {
@@ -99,7 +117,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Provide auth context to all children
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, isLoading, refreshUser, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, isLoading, refreshUser, logout, deleteAccount }}>
       {children}
     </AuthContext.Provider>
   );
