@@ -118,49 +118,14 @@ export class MerchandiseService {
     }
   }
 
-  // Create merchandise items from storage images
+  // Get all merchandise from database (no auto-creation)
   static async syncMerchandiseFromStorage(): Promise<Merchandise[]> {
     try {
-      // Get existing merchandise
-      const existingMerchandise = await this.getAllMerchandise();
-      const existingUrls = new Set(existingMerchandise.map(item => item.imageUrl));
-
-      // Get images from storage
-      const storageUrls = await this.getMerchandiseImagesFromStorage();
-
-      // Create new merchandise items for images that don't exist in database
-      const newItems: Merchandise[] = [];
-      for (const url of storageUrls) {
-        if (!existingUrls.has(url)) {
-          // Extract filename from URL for the name
-          const filename = url.split('/').pop()?.split('?')[0] || 'Merchandise Item';
-          const name = decodeURIComponent(filename).replace(/\.[^/.]+$/, ''); // Remove extension
-
-          const newItem: Merchandise = {
-            name: name,
-            description: '',
-            imageUrl: url,
-            price: 0,
-            currency: 'USD',
-            quantity: 0,
-            category: '',
-            createdAt: Timestamp.now(),
-            updatedAt: Timestamp.now()
-          };
-
-          if (merchandiseCollection) {
-            const docRef = await addDoc(merchandiseCollection, newItem);
-            newItem.id = docRef.id;
-            newItems.push(newItem);
-          }
-        }
-      }
-
-      // Return all merchandise (existing + new)
+      // Only return existing merchandise from database
       const allMerchandise = await this.getAllMerchandise();
       return allMerchandise;
     } catch (error) {
-      console.error('Error syncing merchandise from storage:', error);
+      console.error('Error fetching merchandise:', error);
       throw error;
     }
   }
